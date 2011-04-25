@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <TableLayout android:id="@+id/tableLayout1" android:layout_width="fill_parent" android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
+        <TableRow android:id="@+id/tableRow1">
+    		<com.google.android.maps.MapView
+			xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/mapview"
+			android:layout_width="fill_parent" 
+			android:layout_height="400dip"
+			android:enabled="true" android:clickable="true"
+			android:apiKey="0d_lo7lFH_XWNwqN_nP158pGO_bQWG6MJtvfxZg" />
+			<!-- Boazinha android:apiKey="0zDWmqmZUsrqOu4YKYjZ1w43wVjY3daPpGSqWLA" />-->
+			<!-- Nuno android:apiKey="0d_lo7lFH_XWNwqN_nP158pGO_bQWG6MJtvfxZg" />-->
+			<!-- Ricardo android:apiKey="0SGIB0G-7dh1IkOiPFTzGJb5OE_cHAuG_6R-_JA" /> -->
+    	</TableRow>
+        <TableRow android:id="@+id/tableRow2" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <LinearLayout android:id="@+id/linearLayout1" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                <Button android:text="Cars" android:onClick="ShowCars" android:layout_height="wrap_content" android:id="@+id/button1" android:layout_width="150dip"></Button>
+                <Button android:text="Stations" android:onClick="ShowStations" android:layout_height="wrap_content" android:id="@+id/button2" android:layout_width="150dip"></Button>
+            </LinearLayout>
+        </TableRow>
+    </TableLayout>

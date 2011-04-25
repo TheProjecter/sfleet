@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+    <TextView android:layout_width="wrap_content" android:text="Party Name" android:layout_height="wrap_content" android:id="@+id/textView1"></TextView>
+    <EditText android:layout_width="wrap_content" android:text="" android:layout_height="50dip" android:id="@+id/pname"></EditText>
+    <TextView android:text="Numer of Members" android:id="@+id/textView2" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+    <EditText android:text="1" android:id="@+id/pnumber" android:layout_width="wrap_content" android:layout_height="50dip"></EditText>
+    <TextView android:text="Destination" android:id="@+id/textView3" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+    <Button android:text="Select Destination" android:layout_width="wrap_content" android:onClick="loadSelectDestination" android:id="@+id/button2" android:layout_height="wrap_content"></Button>
+    <Button android:text="Book" android:layout_width="150dip" android:onClick="bookCommit" android:id="@+id/button1" android:layout_height="50dip"></Button>
+    <Button android:text="Cancel" android:layout_width="150dip" android:layout_height="50dip" android:onClick="bookCancel" android:id="@+id/button2"></Button>
+</TableLayout>
