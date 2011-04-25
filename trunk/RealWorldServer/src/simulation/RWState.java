@@ -51,7 +51,7 @@ public class RWState {
 						System.out.println("--->IP: " + c.getValue().getIp());
 						System.out.println("--->port: " + c.getValue().getPort());
 						
-						Socket socket = new Socket("127.0.0.1", c.getValue().getPort());
+						Socket socket = new Socket(c.getValue().getIp(), c.getValue().getPort());
 						ObjectOutput oo = new ObjectOutputStream(socket.getOutputStream());
 						oo.writeObject(csa);
 						socket.close();

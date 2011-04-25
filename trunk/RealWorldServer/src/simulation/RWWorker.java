@@ -53,6 +53,7 @@ public class RWWorker implements Runnable{
 		try {
 			ObjectOutput oo = new ObjectOutputStream(socket.getOutputStream());
 			oo.writeObject(clr);
+			this.socket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,10 +85,13 @@ public class RWWorker implements Runnable{
 		try {
 			ObjectOutput oo = new ObjectOutputStream(socket.getOutputStream());
 			oo.writeObject(clr);
+			this.socket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+
 		
 		this.state.updateCarsOnStations();
 		
@@ -101,6 +105,12 @@ public class RWWorker implements Runnable{
 		//System.out.println("-->Updated Car " + cu.getId());
 		//System.out.println("--->Latitude " + cu.getLat());
 		//System.out.println("--->Longitude " + cu.getLog());
+		try {
+			this.socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -130,6 +140,9 @@ public class RWWorker implements Runnable{
 		}
 		else if(packet instanceof CarUpdate){
 			this.doCarUpdate((CarUpdate)packet);
+		}
+		else {
+			System.out.println("MERDA DA GROSSA");
 		}
 		
 		

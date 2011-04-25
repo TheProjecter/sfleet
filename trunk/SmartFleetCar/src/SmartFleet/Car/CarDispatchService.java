@@ -39,22 +39,15 @@ public class CarDispatchService extends Service{
 				try {				
 					ServerSocket server = new ServerSocket(PORT);
 					
-				//server.bind(new InetSocketAddress("10.0.2.15",  PORT));
-					
 					Log.d("smartfleet", "Running Dispatcher at port " + PORT + ".");
 					CarWorker c;
-					
-					if(server.isClosed())
-						Log.d("smartfleet", "Running Dispatcher at port shit");
-					else
-						Log.d("smartfleet", "Running Dispatcher at port ok");
 						
 					while(true){
-						Socket s = server.accept();
+						Socket socket = server.accept();
 						
-						Log.d("smartfleet", s.getLocalSocketAddress().toString());
+						Log.d("smartfleet", "dispatched a message");
 						
-						c = new CarWorker(s, MAIN_ACTIVITY);
+						c = new CarWorker(socket, MAIN_ACTIVITY);
 						Thread t = new Thread(c);
 						t.start();
 					}

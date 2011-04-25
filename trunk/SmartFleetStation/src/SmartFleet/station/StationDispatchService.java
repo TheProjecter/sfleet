@@ -1,6 +1,7 @@
 package SmartFleet.station;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Timer;
@@ -38,22 +39,17 @@ public class StationDispatchService extends Service {
 				try {				
 					ServerSocket server = new ServerSocket(PORT);
 					
-				//server.bind(new InetSocketAddress("10.0.2.15",  PORT));
+					//server.bind(new InetSocketAddress("10.0.2.15",  PORT));
 					
 					Log.d("smartfleet", "Running Dispatcher at port " + PORT + ".");
 					StationWorker s;
-					
-					if(server.isClosed())
-						Log.d("smartfleet", "Running Dispatcher at port shit");
-					else
-						Log.d("smartfleet", "Running Dispatcher at port ok");
 						
 					while(true){
-						Socket sa = server.accept();
+						Socket socket = server.accept();
 						
-						Log.d("smartfleet", sa.getLocalSocketAddress().toString());
+						Log.d("smartfleet", "dispatched a message");
 						
-						s = new StationWorker(sa, MAIN_ACTIVITY);
+						s = new StationWorker(socket, MAIN_ACTIVITY);
 						Thread t = new Thread(s);
 						t.start();
 					}

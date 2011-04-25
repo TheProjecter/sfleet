@@ -29,17 +29,20 @@ public class StationWorker implements Runnable{
 			try {
 				
 				io = new ObjectInputStream(socket.getInputStream());
-				packet = io.readObject(); 
+				//packet = io.readObject(); 
+				packet = io.read();
 				
-			} catch (ClassNotFoundException e) {
+			//} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+			//	e.printStackTrace();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
 			if(packet instanceof CarAdvertisement){
+				Log.d("smartfleet", "received");
+			}else{
 				Log.d("smartfleet", "received");
 			}
 		

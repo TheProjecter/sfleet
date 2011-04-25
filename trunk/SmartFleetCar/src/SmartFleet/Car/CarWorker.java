@@ -9,6 +9,8 @@ import java.io.StreamCorruptedException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import android.util.Log;
+
 import simulation.msg.CarAdvertisement;
 import simulation.msg.CarStationAdvertise;
 
@@ -30,10 +32,19 @@ public class CarWorker implements Runnable{
 		ca.setPort(this.sfc.getMyport());
 		
 		try {
-			Socket s = new Socket("10.0.2.2", 5001);
+			
+			Socket s = new Socket(csa.getSation().getIp(), csa.getSation().getPort());
+			//this.socket.close();
+			//Socket s = new Socket("10.0.2.2", 5001);
+			if(s.isBound())
+				Log.d("cne","ta bound");
+			if(s.isConnected())
+				Log.d("cne", "ta logado");
+			if(!s.isOutputShutdown())
+				Log.d("cne", "ta output logado");
 			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
 			oo.writeObject(ca);
-			s.close();
+			oo.close();
 		} catch (UnknownHostException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
