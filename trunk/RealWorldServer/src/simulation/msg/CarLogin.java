@@ -10,6 +10,8 @@ public class CarLogin implements Serializable{
 	
 	private double height;
 	
+	private int port;
+	
 	/**
 	 * 
 	 */
@@ -41,6 +43,14 @@ public class CarLogin implements Serializable{
 
 	public double getHeight() {
 		return height;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public int getPort() {
+		return port;
 	}
 	
 }

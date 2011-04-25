@@ -8,6 +8,8 @@ public class StationLogin implements Serializable {
 	
 	private int log;
 	
+	private int port;
+	
 	/**
 	 * 
 	 */
@@ -31,6 +33,14 @@ public class StationLogin implements Serializable {
 
 	public void setLog(int log) {
 		this.log = log;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public int getPort() {
+		return port;
 	}
 	
 	

@@ -35,7 +35,7 @@ public class RWWorker implements Runnable{
 		rwcar.setId(this.state.getSerial());
 		rwcar.setIp(ip);
 		//a pressao para testar
-		rwcar.setPort(5000);
+		rwcar.setPort(cr.getPort());
 		rwcar.setLat(cr.getLat());
 		rwcar.setLog(cr.getLog());
 		rwcar.setHeight(cr.getHeight());
@@ -69,7 +69,7 @@ public class RWWorker implements Runnable{
 		RWStation station = new RWStation();
 		station.setId(this.state.getSerial());
 		station.setIp(ip);
-		station.setPort(port);
+		station.setPort(sl.getPort());
 		station.setLat(sl.getLat());
 		station.setLog(sl.getLog());
 		

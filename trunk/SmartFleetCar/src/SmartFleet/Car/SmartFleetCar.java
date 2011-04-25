@@ -40,7 +40,8 @@ public class SmartFleetCar extends MapActivity {
 	private String realworldip = "194.210.225.53";
 	private int realworldport = 6798;
 	
-	private int myport = 0;
+	private int myport = 5000;
+	private String myip = "194.210.225.53";
 	
 
 	// Need handler for callbacks to the UI thread
@@ -85,12 +86,12 @@ public class SmartFleetCar extends MapActivity {
 		this.mc.setCenter(IST);
 		this.mc.animateTo(IST);
 		
-		this.registerOnRealWorld();
-		
 		CarDispatchService.setMainActivity(this, this.myport);
 	    final Intent CarDispatchService = new Intent(this, CarDispatchService.class);
 		startService(CarDispatchService);
-			
+		
+		this.registerOnRealWorld();
+		
 	}
 
 	// TODO: RUIQ IDEIAS??
@@ -177,6 +178,7 @@ public class SmartFleetCar extends MapActivity {
 			l.setLat(this.myCar.getMyLocation().getLatitudeE6());
 			l.setLog(this.myCar.getMyLocation().getLongitudeE6());
 			l.setHeight(this.myCar.getHeight());
+			l.setPort(this.myport);
 			
 			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
 			oo.writeObject(l);
@@ -190,7 +192,6 @@ public class SmartFleetCar extends MapActivity {
 			}
 			
 			this.id = cr.getId();			
-			this.myport = cr.getPort();
 			
 			Log.d("smartfleet", "Successfully logged at Real World Server. my port:" + s.getLocalPort());
 			
@@ -239,6 +240,14 @@ public class SmartFleetCar extends MapActivity {
 
 	public int getMyport() {
 		return myport;
+	}
+
+	public void setMyip(String myip) {
+		this.myip = myip;
+	}
+
+	public String getMyip() {
+		return myip;
 	}
 	
 }
