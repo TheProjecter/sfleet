@@ -21,7 +21,7 @@ public class CarStationAdvertise implements Serializable{
 		this.station = s;
 	}
 
-	public RWStation setSation() {
+	public RWStation getSation() {
 		return station;
 	}
 	

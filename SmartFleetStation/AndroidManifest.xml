@@ -27,9 +27,7 @@
             </intent-filter>
         </activity>
         
-        <service android:name="LoginService"/>
-        <service android:name="SendFlightService"/>
-        <service android:name="AddCarService"/>
+        <service android:name="StationDispatchService"/>
 
     </application>
 </manifest>

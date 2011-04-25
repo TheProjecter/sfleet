@@ -54,7 +54,8 @@ public class SmartFleetStation extends Activity {
 	private String realworldip = "194.210.225.53";
 	private int realworldport = 6798;
 	
-	private int myport = 0;
+	private int myport = 5001;
+	private String myip = "194.210.225.53";
 	
 	private boolean booking = false;
 	
@@ -85,9 +86,9 @@ public class SmartFleetStation extends Activity {
      //   final Intent addCarService = new Intent(this, AddCarService.class);
 	//	startService(addCarService);
 		
-	//	SendFlightService.setMainActivity(this);
-      //  final Intent sendFlightService = new Intent(this, SendFlightService.class);
-	//	startService(sendFlightService);
+        StationDispatchService.setMainActivity(this, this.myport);
+        final Intent dispatcher = new Intent(this, StationDispatchService.class);
+        startService(dispatcher);
         
         this.registerOnRealWorld();
 		
@@ -222,6 +223,7 @@ public void registerOnRealWorld(){
 			
 			l.setLat(this.myStation.getMylocation().getLatitudeE6());
 			l.setLog(this.myStation.getMylocation().getLongitudeE6());
+			l.setPort(this.myport);
 			
 			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
 			oo.writeObject(l);
@@ -305,6 +307,14 @@ public void registerOnRealWorld(){
 
 	public int getId() {
 		return id;
+	}
+
+	public void setMyip(String myip) {
+		this.myip = myip;
+	}
+
+	public String getMyip() {
+		return myip;
 	}
     
 }
