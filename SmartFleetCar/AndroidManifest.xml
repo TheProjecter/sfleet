@@ -21,6 +21,7 @@
 		</activity>
 
 		<service android:name="CarDispatchService"/>
+		<service android:name="CarUpdateService"/>
 
 	</application>
 </manifest>

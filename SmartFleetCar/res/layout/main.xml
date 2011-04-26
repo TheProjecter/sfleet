@@ -24,9 +24,5 @@
      <TableRow android:id="@+id/tableRow3" android:layout_width="wrap_content" android:layout_height="wrap_content">
         <TextView android:text="100%" android:editable="true" android:id="@+id/battery" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
     </TableRow>
-   	<LinearLayout android:id="@+id/linearLayout1" android:layout_width="wrap_content" android:layout_height="wrap_content">
-   		<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:onClick="setDestinationAirPort" android:id="@+id/button3" android:text="Airport"></Button>
-   		<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:onClick="setDestinationIST" android:id="@+id/button1" android:text="IST"></Button>
-   		<Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:onClick="setDestinationTagus" android:id="@+id/button2" android:text="Tagus"></Button>
-   	</LinearLayout>
+
 </TableLayout>

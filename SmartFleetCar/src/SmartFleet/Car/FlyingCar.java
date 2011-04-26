@@ -3,7 +3,9 @@ package SmartFleet.Car;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import structs.Route;
 import android.os.Handler;
+import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
@@ -20,8 +22,6 @@ public class FlyingCar extends TimerTask {
 
 	private double max_battery;
 
-	private GeoPoint myDestination;
-
 	private Runnable r;
 
 	private RouteOverlay routeoverlay;
@@ -37,6 +37,8 @@ public class FlyingCar extends TimerTask {
 	//private Map<Integer, Info> cars;
 	
 	//private Flight flight;
+	
+	private Route route;
 
 	public FlyingCar(MapController m, RouteOverlay r, Handler hand, Runnable ru) {
 
@@ -62,6 +64,8 @@ public class FlyingCar extends TimerTask {
 		
 		//this.flight = null;
 		//this.port = 0;
+		
+		this.route = new Route();
 	}
 
 	public double getBattery() {
@@ -89,10 +93,6 @@ public class FlyingCar extends TimerTask {
 		return this.max_battery;
 	}
 
-	public GeoPoint getMyDestination() {
-
-		return this.myDestination;
-	}
 
 	public GeoPoint getMyLocation() {
 
@@ -137,11 +137,6 @@ public class FlyingCar extends TimerTask {
 		this.battery = battery;
 	}
 
-	public void setDestination(GeoPoint p) {
-
-		this.myDestination = p;
-	}
-
 	public void setH(Handler h) {
 
 		this.h = h;
@@ -170,14 +165,10 @@ public class FlyingCar extends TimerTask {
 		this.max_battery = max_battery;
 	}
 
-	public void setMyDestination(GeoPoint myDestination) {
-
-		this.myDestination = myDestination;
-	}
 
 	public void setMyLocation(GeoPoint myLocation) {
-
 		this.myLocation = myLocation;
+		this.routeoverlay.setMylocation(myLocation);
 	}
 
 	public void setR(Runnable r) {
@@ -201,21 +192,24 @@ public class FlyingCar extends TimerTask {
 	}
 
 	public void updatePosition() {
+		
+		if (!this.route.getRoute().isEmpty()) {
 
-		if (this.myDestination != null) {
-
-			if (this.myLocation.equals(this.myDestination)) {
-				this.myDestination = null;
+			if (this.myLocation.equals(new GeoPoint(this.route.getRoute().get(0).getLat(),
+													this.route.getRoute().get(0).getLon()))) {
+				this.route.getRoute().removeFirst();
+				this.routeoverlay.setRoute(this.route);
 				this.setHeight(0);
+				//TODO PARA PARA SAIR PASSAGEIROS
 				return;
 			}
 
 			if (this.height == 0)
 				this.setHeight(200);
 
-			double disty = this.myDestination.getLatitudeE6()
+			double disty = this.route.getRoute().get(0).getLat()
 					- this.myLocation.getLatitudeE6();
-			double distx = this.myDestination.getLongitudeE6()
+			double distx = this.route.getRoute().get(0).getLon()
 					- this.myLocation.getLongitudeE6();
 
 			double angle = Math.atan(Math.abs(distx) / Math.abs(disty));
@@ -223,11 +217,9 @@ public class FlyingCar extends TimerTask {
 			double yv = this.velocity * Math.cos(angle);
 			double xv = this.velocity * Math.sin(angle);
 
-			if (this.myLocation.getLatitudeE6() > this.myDestination
-					.getLatitudeE6())
+			if (this.myLocation.getLatitudeE6() > this.route.getRoute().get(0).getLat())
 				yv = -yv;
-			if (this.myLocation.getLongitudeE6() > this.myDestination
-					.getLongitudeE6())
+			if (this.myLocation.getLongitudeE6() > this.route.getRoute().get(0).getLon())
 				xv = -xv;
 
 			// latitude 1¼ = 109000m
@@ -245,22 +237,18 @@ public class FlyingCar extends TimerTask {
 			int logd = (int) (this.myLocation.getLongitudeE6() + (xv * 1E6));
 			int latd = (int) (this.myLocation.getLatitudeE6() + (yv * 1E6));
 
-			if (this.myLocation.getLatitudeE6() < this.myDestination
-					.getLatitudeE6()) {
-				if (latd > this.myDestination.getLatitudeE6())
-					latd = this.myDestination.getLatitudeE6();
-			} else if (this.myLocation.getLatitudeE6() > this.myDestination
-					.getLatitudeE6())
-				if (latd < this.myDestination.getLatitudeE6())
-					latd = this.myDestination.getLatitudeE6();
-			if (this.myLocation.getLongitudeE6() < this.myDestination
-					.getLongitudeE6()) {
-				if (logd > this.myDestination.getLongitudeE6())
-					logd = this.myDestination.getLongitudeE6();
-			} else if (this.myLocation.getLongitudeE6() > this.myDestination
-					.getLongitudeE6())
-				if (logd < this.myDestination.getLongitudeE6())
-					logd = this.myDestination.getLongitudeE6();
+			if (this.myLocation.getLatitudeE6() < this.route.getRoute().get(0).getLat()) {
+				if (latd > this.route.getRoute().get(0).getLat())
+					latd = this.route.getRoute().get(0).getLat();
+			} else if (this.myLocation.getLatitudeE6() >this.route.getRoute().get(0).getLat())
+				if (latd < this.route.getRoute().get(0).getLat())
+					latd = this.route.getRoute().get(0).getLat();
+			if (this.myLocation.getLongitudeE6() < this.route.getRoute().get(0).getLon()) {
+				if (logd > this.route.getRoute().get(0).getLon())
+					logd = this.route.getRoute().get(0).getLon();
+			} else if (this.myLocation.getLongitudeE6() > this.route.getRoute().get(0).getLon())
+				if (logd < this.route.getRoute().get(0).getLon())
+					logd = this.route.getRoute().get(0).getLon();
 
 			this.battery -= 10;
 
@@ -269,11 +257,20 @@ public class FlyingCar extends TimerTask {
 			this.mapcontrol.setCenter(this.myLocation);
 			this.mapcontrol.animateTo(this.myLocation);
 
-			this.routeoverlay.setOrigin(this.myLocation);
-			this.routeoverlay.setDest(this.myDestination);
+			this.routeoverlay.setMylocation(this.myLocation);
+			this.routeoverlay.setRoute(this.route);
 			
 		}
 	}
 
+	public Route getRoute() {
+		return route;
+	}
+
+	public void setRoute(Route route) {
+		this.route = route;
+	}
+
+	
 	
 }
