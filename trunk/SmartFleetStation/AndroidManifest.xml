@@ -26,8 +26,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+  
         <service android:name="StationDispatchService"/>
+		<service android:name="RouteDispatchService"/>
 
     </application>
 </manifest>

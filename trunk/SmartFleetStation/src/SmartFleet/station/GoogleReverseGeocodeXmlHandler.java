@@ -4,8 +4,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import android.util.Log;
-
 public class GoogleReverseGeocodeXmlHandler extends DefaultHandler 
 {
     private boolean inStreetName = false;

@@ -3,6 +3,8 @@ package SmartFleet.station;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import structs.Flight;
+
 import com.google.android.maps.GeoPoint;
 
 public class FlyingStation {

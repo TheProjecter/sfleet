@@ -11,15 +11,21 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import messages.LoginResponse;
+import messages.RouteSending;
+import messages.StationLogin;
+
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
-import simulation.msg.LoginResponse;
-import simulation.msg.StationLogin;
+import structs.Flight;
+import structs.RWCar;
+import structs.Route;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -51,13 +57,15 @@ public class SmartFleetStation extends Activity {
 	
 	private int id = 0;
 	
-	private String realworldip = "192.168.0.11";
+	private String realworldip = "194.210.228.46";
 	private int realworldport = 6798;
 	
 	private int myport = 5001;
-	private String myip = "192.168.0.11";
+	private String myip = "194.210.228.46";
 	
 	private boolean booking = false;
+	
+	private HashMap<Integer, RWCar> carsDocked;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,14 +74,15 @@ public class SmartFleetStation extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
         GeoPoint IST = new GeoPoint(38736830, -9138181);
-        GeoPoint TP = new GeoPoint(38736320, -9301917);
-        GeoPoint AirPort = new GeoPoint(38765775, -9133007);
+       // GeoPoint TP = new GeoPoint(38736320, -9301917);
+       // GeoPoint AirPort = new GeoPoint(38765775, -9133007);
         
         this.myStation = new FlyingStation(IST);
+        this.setCarsDocked(new HashMap<Integer, RWCar>());
         
         this.myStation.getDestinations().put("IST", IST);
-        this.myStation.getDestinations().put("Tagus", TP);
-        this.myStation.getDestinations().put("Airport", AirPort);
+       // this.myStation.getDestinations().put("Tagus", TP);
+       // this.myStation.getDestinations().put("Airport", AirPort);
         
         this.setContentView(R.layout.main);
         this.mHandler.post(mUpdateResults);
@@ -89,6 +98,10 @@ public class SmartFleetStation extends Activity {
         StationDispatchService.setMainActivity(this, this.myport);
         final Intent dispatcher = new Intent(this, StationDispatchService.class);
         startService(dispatcher);
+        
+        RouteDispatchService.setMainActivity(this);
+        final Intent rdispatcher = new Intent(this, RouteDispatchService.class);
+        startService(rdispatcher);
         
         this.registerOnRealWorld();
 		
@@ -112,7 +125,8 @@ public class SmartFleetStation extends Activity {
     		return;
     	
     	GeoPoint gp = new GeoPoint(data.getIntExtra("lat", 0), data.getIntExtra("log", 0));
-    	this.currentflight.setDestcoords(gp);
+    	this.currentflight.setLat(gp.getLatitudeE6());
+    	this.currentflight.setLon(gp.getLongitudeE6());
     	
     	String locationname = "UNDEFINED";
     	
@@ -189,7 +203,7 @@ public class SmartFleetStation extends Activity {
        		numb = -1;
        	}
        	
-       	if(pname.equals("") || pname == null || numb < 1 || numb > 4 || this.currentflight.getDestcoords() == null ){
+       	if(pname.equals("") || pname == null || numb < 1 || numb > 4 || this.currentflight.getLat() == 0 || this.currentflight.getLon() == 0){
        		String error = "There's something wrong with your values...";
        		Toast.makeText(this.getApplicationContext(), error, Toast.LENGTH_SHORT).show();
        	}else{
@@ -231,15 +245,13 @@ public void registerOnRealWorld(){
 			LoginResponse cr = null;
 			try {
 				cr = (LoginResponse)oi.readObject();
+				s.close();
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
 			this.setId(cr.getId());
-			this.setMyport(cr.getPort());
-		
-			s.close();
 		
 			Log.d("smartfleet", "Successfully logged at Real World Server.");
 			
@@ -251,6 +263,49 @@ public void registerOnRealWorld(){
 			e.printStackTrace();
 		}
 	
+	}
+
+	public void dispatchRoute(){
+		//TODO FALTA OLHAR PARA ESTA MERDA COMO DEVE SER
+		
+		if(this.carsDocked.isEmpty() || this.myStation.flightqueue.isEmpty())
+			return;
+		
+		RWCar car = null;
+		for(RWCar c : this.carsDocked.values()){
+			car = c;
+			break;
+		}
+		this.carsDocked.remove(car.getId());
+		
+		Route r = new Route();
+		r.getRoute().add(this.myStation.flightqueue.get(0));
+		this.myStation.flightqueue.remove(0);
+		Flight dest = new Flight();
+		dest.setLat(this.getMylocation().getLatitudeE6());
+		dest.setLon(this.getMylocation().getLongitudeE6());
+		r.getRoute().add(dest);
+		
+		RouteSending rs = new RouteSending(r);
+		
+		Socket s;
+		try {
+			Log.d("Smartfleet", "Sending route");
+			s = new Socket(car.getIp(), car.getPort());
+			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
+			oo.writeObject(rs);
+			s.close();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		this.mHandler.post(this.mUpdateResults);
+		
+		
 	}
     
 	public void setMylocation(GeoPoint mylocation) {
@@ -315,6 +370,14 @@ public void registerOnRealWorld(){
 
 	public String getMyip() {
 		return myip;
+	}
+
+	public void setCarsDocked(HashMap<Integer, RWCar> carsDocked) {
+		this.carsDocked = carsDocked;
+	}
+
+	public HashMap<Integer, RWCar> getCarsDocked() {
+		return carsDocked;
 	}
     
 }
