@@ -6,17 +6,21 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
-import simulation.msg.CarLogin;
-import simulation.msg.CarUpdate;
-import simulation.msg.LoginResponse;
+import messages.CarAdvertisement;
+import messages.CarLogin;
+import messages.CarStationAdvertise;
+import messages.CarSubscribe;
+import messages.CarUnsubscribe;
+import messages.CarUpdate;
+import messages.CarUpdateResponse;
+import messages.LoginResponse;
+import structs.RWCar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -36,12 +40,12 @@ public class SmartFleetCar extends MapActivity {
 	private FlyingCar myCar;
 	
 	private int id = 0;
-	
-	private String realworldip = "192.168.0.11";
+
+	private String realworldip = "194.210.228.46";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
-	private String myip = "192.168.0.11";
+	private String myip = "194.210.228.46";
 	
 
 	// Need handler for callbacks to the UI thread
@@ -76,19 +80,23 @@ public class SmartFleetCar extends MapActivity {
 		// mapView.setBuiltInZoomControls(true);
 		this.mapView.setSatellite(false);
 		this.mc.setZoom(16);
-		RouteOverlay ro = new RouteOverlay(IST, IST, 255);
-		this.mapView.getOverlays().add(ro);
-
+		
+		RouteOverlay ro = new RouteOverlay(IST, 255);
 		this.myCar = new FlyingCar(this.mc, ro, this.mHandler,
 				this.mUpdateResults);
-
 		this.myCar.setLocation(IST);
+		
+		this.mapView.getOverlays().add(ro);
 		this.mc.setCenter(IST);
 		this.mc.animateTo(IST);
 		
 		CarDispatchService.setMainActivity(this, this.myport);
 	    final Intent CarDispatchService = new Intent(this, CarDispatchService.class);
 		startService(CarDispatchService);
+		
+		CarUpdateService.setMainActivity(this);
+	    final Intent CarUpdateService = new Intent(this, CarUpdateService.class);
+		startService(CarUpdateService);
 		
 		this.registerOnRealWorld();
 		
@@ -101,24 +109,11 @@ public class SmartFleetCar extends MapActivity {
 		return false;
 	}
 
-	public void setDestinationTagus(View V) {
-		this.myCar.setDestination(new GeoPoint(38736320, -9301917));
-	}
-
-	public void setDestinationIST(View V) {
-		this.myCar.setDestination(new GeoPoint(38736830, -9138181));
-	}
-
-	public void setDestinationAirPort(View V) {
-		this.myCar.setDestination(new GeoPoint(38765775, -9133007));
-	}
 
 	public void updateUI() {
 		// TODO: RUIQ este cast (int) e necessario?
 		this.batterytext.setText((int) this.myCar.getPercentageBattery() + "%");
 		this.heightext.setText((int) this.myCar.getHeight() + "m");
-		if(this.myCar.getHeight() > 0 && this.myport != 0)
-			this.updateRealWorld();
 	}
 
 	public MapView getMapView() {
@@ -186,16 +181,28 @@ public class SmartFleetCar extends MapActivity {
 			LoginResponse cr = null;
 			try {
 				cr = (LoginResponse)oi.readObject();
+				s.close();
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			this.id = cr.getId();			
+			this.id = cr.getId();
+			
+			Socket s2 = new Socket(cr.getStation().getIp(), cr.getStation().getPort());
+			CarAdvertisement ca = new CarAdvertisement();
+			RWCar car = new RWCar();
+			car.setId(this.id);
+			car.setIp(this.myip);
+			car.setPort(this.myport);
+			car.setBattery(this.myCar.getBattery());
+			ca.setCar(car);
+			
+			ObjectOutput oo2 = new ObjectOutputStream(s2.getOutputStream());
+			oo2.writeObject(ca);
+			
 			
 			Log.d("smartfleet", "Successfully logged at Real World Server. my port:" + s.getLocalPort());
-			
-			s.close();
 			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -216,19 +223,84 @@ public class SmartFleetCar extends MapActivity {
 			l.setId(this.id);
 			l.setLat(this.myCar.getMyLocation().getLatitudeE6());
 			l.setLog(this.myCar.getMyLocation().getLongitudeE6());
-			l.setHeight(this.myCar.getHeight());
 			
 			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
 			oo.writeObject(l);
-		
+			
+			ObjectInput oi = new ObjectInputStream(s.getInputStream());
+			CarUpdateResponse cur = (CarUpdateResponse) oi.readObject();
 			s.close();
-		
+			
+			//TODO processar o input do update
+			
 			Log.d("CarUpdate", "Successfully updated.");
 			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void subscribeRealWorld(){
+		try {
+			Socket s = new Socket(this.realworldip, this.realworldport);
+			CarSubscribe l = new CarSubscribe(this.id);
+			
+			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
+			oo.writeObject(l);			
+			s.close();
+		
+			Log.d("CarSubscribe", "Successfully subbed.");
+			
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void unsubscribeRealWorld(){
+		try {
+			Socket s = new Socket(this.realworldip, this.realworldport);
+			CarUnsubscribe l = new CarUnsubscribe(this.id);
+			
+			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
+			oo.writeObject(l);	
+			ObjectInput oi = new ObjectInputStream(s.getInputStream());
+			CarStationAdvertise csa = (CarStationAdvertise) oi.readObject();
+			s.close();
+		
+			if(csa.getStation() != null){
+				Socket s2 = new Socket(csa.getStation().getIp(), csa.getStation().getPort());
+				CarAdvertisement ca = new CarAdvertisement();
+				RWCar car = new RWCar();
+				car.setId(this.id);
+				car.setIp(this.myip);
+				car.setPort(this.myport);
+				car.setBattery(this.myCar.getBattery());
+				ca.setCar(car);
+
+				ObjectOutput oo2 = new ObjectOutputStream(s2.getOutputStream());
+				oo2.writeObject(ca);
+			}
+			
+			Log.d("CarUnSbuscribe", "Successfully unsubbed.");
+			
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -248,6 +320,14 @@ public class SmartFleetCar extends MapActivity {
 
 	public String getMyip() {
 		return myip;
+	}
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 }
