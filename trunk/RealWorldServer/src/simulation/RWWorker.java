@@ -7,12 +7,16 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import simulation.msg.CarLogin;
-import simulation.msg.CarUpdate;
-import simulation.msg.LoginResponse;
-import simulation.msg.StationLogin;
-import simulation.structs.RWCar;
-import simulation.structs.RWStation;
+import messages.CarLogin;
+import messages.CarStationAdvertise;
+import messages.CarSubscribe;
+import messages.CarUnsubscribe;
+import messages.CarUpdate;
+import messages.CarUpdateResponse;
+import messages.LoginResponse;
+import messages.StationLogin;
+import structs.RWCar;
+import structs.RWStation;
 
 
 public class RWWorker implements Runnable{
@@ -34,17 +38,16 @@ public class RWWorker implements Runnable{
 		RWCar rwcar = new RWCar();
 		rwcar.setId(this.state.getSerial());
 		rwcar.setIp(ip);
-		//a pressao para testar
 		rwcar.setPort(cr.getPort());
 		rwcar.setLat(cr.getLat());
 		rwcar.setLog(cr.getLog());
-		rwcar.setHeight(cr.getHeight());
-		
-		 
+		rwcar.setHeight(cr.getHeight());	 
 		
 		this.state.getCarCommList().put(rwcar.getId(), rwcar);
 		
-		LoginResponse clr = new LoginResponse(rwcar.getId(), rwcar.getPort());
+		LoginResponse clr = new LoginResponse();
+		clr.setId(rwcar.getId());
+		clr.setStation(this.state.getCarStation(rwcar.getId()));
 		
 		System.out.println("-->Logged Car " + rwcar.getId() + " to the server.");
 		System.out.println("--->IP: " + rwcar.getIp());
@@ -76,7 +79,8 @@ public class RWWorker implements Runnable{
 		
 		this.state.getStationCommList().put(station.getId(), station);
 		
-		LoginResponse clr = new LoginResponse(station.getId(), station.getPort());
+		LoginResponse clr = new LoginResponse();
+		clr.setId(station.getId());
 		
 		System.out.println("-->Logged Station " + station.getId() + " to the server.");
 		System.out.println("--->IP: " + station.getIp());
@@ -89,28 +93,63 @@ public class RWWorker implements Runnable{
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-
-		
-		this.state.updateCarsOnStations();
-		
+		}		
 	}
 	
-	public void doCarUpdate(CarUpdate cu){
-		//RWCar c = this.state.getCarCommList().get(cu.getId());
-		//c.setHeight(cu.getHeight());
-		//c.setLat(cu.getLat());
-		//c.setLog(cu.getLog());
-		//System.out.println("-->Updated Car " + cu.getId());
-		//System.out.println("--->Latitude " + cu.getLat());
-		//System.out.println("--->Longitude " + cu.getLog());
+	public void doCarSubscribe(CarSubscribe cs){
 		try {
 			this.socket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		RWCar car = this.state.getCarCommList().get(cs.getId());
+		
+		if(!this.state.getCarSubscribers().containsKey(car.getId()))
+			this.state.getCarSubscribers().put(car.getId(), car);
+		
+	}
+	
+	public void doCarUpdate(CarUpdate cu){
+		RWCar c = this.state.getCarSubscribers().get(cu.getId());
+		c.setLat(cu.getLat());
+		c.setLog(cu.getLog());
+		System.out.println("-->Updated Car " + c.getId());
+		System.out.println("--->Latitude " + c.getLat());
+		System.out.println("--->Longitude " + c.getLog());
+		
+		try{
+			//TODO RESPOSTA AO UPDATE
+			CarUpdateResponse cur = new CarUpdateResponse();
+			
+			ObjectOutput oo = new ObjectOutputStream(this.socket.getOutputStream());
+			oo.writeObject(cur);	
+			this.socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void doCarUnsubscribe(CarUnsubscribe cs){
+		
+		CarStationAdvertise csa = new CarStationAdvertise();
+		csa.setStation(this.state.getCarStation(cs.getId()));
+		
+		try {
+			ObjectOutput oo = new ObjectOutputStream(this.socket.getOutputStream());
+			oo.writeObject(csa);
+			this.socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		RWCar car = this.state.getCarCommList().get(cs.getId());
+		
+		if(this.state.getCarSubscribers().containsKey(car.getId()))
+			this.state.getCarSubscribers().remove(car.getId());
 	}
 	
 	@Override
@@ -138,12 +177,16 @@ public class RWWorker implements Runnable{
 		else if(packet instanceof StationLogin){
 			this.doStationLogin((StationLogin)packet);
 		}
+		else if(packet instanceof CarSubscribe){
+			this.doCarSubscribe((CarSubscribe)packet);
+		}
 		else if(packet instanceof CarUpdate){
 			this.doCarUpdate((CarUpdate)packet);
 		}
-		else {
-			System.out.println("MERDA DA GROSSA");
+		else if(packet instanceof CarUnsubscribe){
+			this.doCarUnsubscribe((CarUnsubscribe)packet);
 		}
+		
 		
 		
 		
