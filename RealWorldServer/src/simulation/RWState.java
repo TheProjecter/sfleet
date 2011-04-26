@@ -1,17 +1,11 @@
 package simulation;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import simulation.msg.CarStationAdvertise;
-import simulation.structs.RWCar;
-import simulation.structs.RWStation;
+import structs.RWCar;
+import structs.RWStation;
 
 
 public class RWState {
@@ -19,13 +13,13 @@ public class RWState {
 	int serialid;
 	
 	private HashMap<Integer, RWCar> carCommList;
-	private ArrayList<Integer> carSubscribers;
+	private HashMap<Integer, RWCar> carSubscribers;
 	private HashMap<Integer, RWStation> stationCommList;
 	
 	public RWState(){
 		this.serialid = 0;
 		this.setCarCommList(new HashMap<Integer, RWCar>());
-		this.setCarSubscribers(new ArrayList<Integer>());
+		this.setCarSubscribers(new HashMap<Integer, RWCar>());
 		this.setStationCommList(new HashMap<Integer, RWStation>());
 	}
 	
@@ -35,42 +29,18 @@ public class RWState {
 		return res;
 	}
 	
-	public void updateCarsOnStations(){
+	public RWStation getCarStation(int id){
 		
-		for(Entry<Integer, RWCar> c : this.getCarCommList().entrySet()){
-			for(Entry<Integer, RWStation> e : this.getStationCommList().entrySet()){
-				if(e.getValue().getLat() == c.getValue().getLat() &&
-						e.getValue().getLog() == c.getValue().getLog()){
-
-					CarStationAdvertise csa = new CarStationAdvertise(e.getValue());
-
-					try {
-						
-						System.out.println("-->Trying to send an advertisement for station " + e.getKey() +
-								" to car " + c.getKey() + " on:");
-						System.out.println("--->IP: " + c.getValue().getIp());
-						System.out.println("--->port: " + c.getValue().getPort());
-						
-						Socket socket = new Socket(c.getValue().getIp(), c.getValue().getPort());
-						ObjectOutput oo = new ObjectOutputStream(socket.getOutputStream());
-						oo.writeObject(csa);
-						socket.close();
-
-						System.out.println("-->Sent an advertisement for station " + e.getKey() +
-											" to car " + c.getKey());
-
-					} catch (UnknownHostException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-
-				}
+		RWCar thiscar = this.getCarCommList().get(id);
+		
+		for(Entry<Integer, RWStation> e : this.getStationCommList().entrySet()){
+			if(e.getValue().getLat() == thiscar.getLat() &&
+					e.getValue().getLog() == thiscar.getLog()){
+				return e.getValue();
 			}
 		}
 		
+		return null;
 	}
 
 	public void setCarCommList(HashMap<Integer, RWCar> carCommList) {
@@ -89,11 +59,11 @@ public class RWState {
 		return stationCommList;
 	}
 
-	public void setCarSubscribers(ArrayList<Integer> carSubscribers) {
+	public void setCarSubscribers(HashMap<Integer, RWCar> carSubscribers) {
 		this.carSubscribers = carSubscribers;
 	}
 
-	public ArrayList<Integer> getCarSubscribers() {
+	public HashMap<Integer, RWCar> getCarSubscribers() {
 		return carSubscribers;
 	}
 	
