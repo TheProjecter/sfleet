@@ -1,5 +1,7 @@
 package SmartFleet.monitor;
 
+import structs.ServerCar;
+import structs.ServerStation;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -22,7 +24,7 @@ public class DrawOverlay extends Overlay{
 			
 			if(this.sfm.isShowstations()){
 
-				for(MyStation s : this.sfm.getStationlist().values())
+				for(ServerStation s : this.sfm.getStationlist().values())
 				{
 					if(Math.abs((s.getLat() - p.getLatitudeE6())) <= 5000 &&
 							Math.abs((s.getLon() - p.getLongitudeE6())) <= 5000){
@@ -33,7 +35,7 @@ public class DrawOverlay extends Overlay{
 
 			if(this.sfm.isShowcars()){
 
-				for(MyCar c : this.sfm.getCarlist().values())
+				for(ServerCar c : this.sfm.getCarlist().values())
 				{
 					if(Math.abs((c.getLat() - p.getLatitudeE6())) <= 5000 &&
 							Math.abs((c.getLon() - p.getLongitudeE6())) <= 5000){
@@ -57,7 +59,7 @@ public class DrawOverlay extends Overlay{
 		    paint.setAlpha(200);
 		    
 		    if(this.sfm.isShowstations() == true){
-		    	for(MyStation s : this.sfm.getStationlist().values())
+		    	for(ServerStation s : this.sfm.getStationlist().values())
 		    	{
 		    		projection.toPixels(new GeoPoint(s.getLat(), s.getLon()), point);  
 		    		canvas.drawCircle(point.x, point.y, 7, paint);
@@ -67,7 +69,7 @@ public class DrawOverlay extends Overlay{
 		    paint.setColor(android.graphics.Color.RED);
 
 		    if(this.sfm.isShowcars()){
-		    	for(MyCar c : this.sfm.getCarlist().values())
+		    	for(ServerCar c : this.sfm.getCarlist().values())
 		    	{	
 		    		projection.toPixels(new GeoPoint(c.getLat(), c.getLon()), point);
 		    		//projection.toPixels(c.getMyDestination(), point2);

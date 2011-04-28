@@ -3,6 +3,9 @@ package SmartFleet.monitor;
 import java.util.HashMap;
 import java.util.Map;
 
+import structs.ServerCar;
+import structs.ServerStation;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,8 +27,8 @@ public class SmartFleetMonitor extends MapActivity {
 	private boolean showcars;
 	private boolean showstations;
 	
-	private Map<Integer, MyStation> stationlist;
-	private Map<Integer, MyCar> carlist;
+	private Map<Integer, ServerStation> stationlist;
+	private Map<Integer, ServerCar> carlist;
 	
 	private int myport = 5002;
 	
@@ -51,8 +54,8 @@ public class SmartFleetMonitor extends MapActivity {
     	this.setShowcars(true);
     	this.setShowstations(true);
     	
-    	this.stationlist = new HashMap<Integer, MyStation>();
-    	this.carlist = new HashMap<Integer, MyCar>();  
+    	this.stationlist = new HashMap<Integer, ServerStation>();
+    	this.carlist = new HashMap<Integer, ServerCar>();  
        
     	this.mapc = mapView.getController();
     	//mapView.setBuiltInZoomControls(true);
@@ -67,15 +70,15 @@ public class SmartFleetMonitor extends MapActivity {
 		startService(monitorListenerService);
     }
 
-    public void callStationInfo(MyStation s){
+    public void callStationInfo(ServerStation s){
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setCancelable(true);
     	builder.setTitle("StationID: " + s.getId());
     	builder.setInverseBackgroundForced(false);
     	builder.setMessage("Latitude: " + s.getLat()/1E6 + "\n" +
-    					   "Longitude: " + s.getLon()/1E6 + "\n\n" +
+    					   "Longitude: " + s.getLon()/1E6 + "\n\n");/* +
     					   "On Wait Clients: " + s.getnWaitPassengers() + "\n" +
-    					   "Avg. Waiting Time: " + s.getAverageWaitTime() + " min.");
+    					   "Avg. Waiting Time: " + s.getAverageWaitTime() + " min.");*/
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     	  public void onClick(DialogInterface dialog, int which) {
@@ -92,14 +95,14 @@ public class SmartFleetMonitor extends MapActivity {
 
     }
     
-    public void callCarInfo(MyCar s){
+    public void callCarInfo(ServerCar s){
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setCancelable(true);
     	builder.setTitle("CarID: " + s.getId());
     	builder.setInverseBackgroundForced(false);
     	builder.setMessage("Latitude: " + s.getLat()/1E6 + "\n" +
-				   		   "Longitude: " + s.getLon()/1E6 + "\n\n" +
-				   		   "Battery: " + (int)s.getPercentageBattery() + "%\n");
+				   		   "Longitude: " + s.getLon()/1E6 + "\n\n");// +
+				   		  // "Battery: " + (int)s.getPercentageBattery() + "%\n");
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     	  public void onClick(DialogInterface dialog, int which) {
@@ -122,19 +125,19 @@ public class SmartFleetMonitor extends MapActivity {
 		return false;
 	}
 
-	public Map<Integer, MyStation> getStationlist() {
+	public Map<Integer, ServerStation> getStationlist() {
 		return stationlist;
 	}
 
-	public void setStationlist(Map<Integer, MyStation> stationlist) {
+	public void setStationlist(Map<Integer, ServerStation> stationlist) {
 		this.stationlist = stationlist;
 	}
 
-	public Map<Integer, MyCar> getCarlist() {
+	public Map<Integer, ServerCar> getCarlist() {
 		return carlist;
 	}
 
-	public void setCarlist(Map<Integer, MyCar> carlist) {
+	public void setCarlist(Map<Integer, ServerCar> carlist) {
 		this.carlist = carlist;
 	}
 	
