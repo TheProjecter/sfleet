@@ -12,13 +12,15 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import messages.ChargeMessage;
 import messages.LoginResponse;
 import messages.RouteSending;
-import messages.Station;
 import messages.StationList;
 import messages.StationLogin;
 import messages.StationRegisterMessage;
@@ -60,18 +62,19 @@ public class SmartFleetStation extends Activity {
 	
 	private int id = 0;
 	
-	private String realworldip = "193.136.100.207";
+	private String realworldip = "192.168.0.11";
 	private int realworldport = 6798;
 	
 	private int myport = 5001;
-	private String myip = "193.136.100.207";
+	private String myip = "192.168.0.11";
 	
-	private String serverip = "193.136.100.207";
+	private String serverip = "194.210.228.38";
 	private int serverport = 6799;
 	
 	private boolean booking = false;
 	
 	private HashMap<Integer, RWCar> carsDocked;
+	private HashMap<Integer, RWCar> carsToCharge;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,6 +88,7 @@ public class SmartFleetStation extends Activity {
         
         this.myStation = new FlyingStation(IST);
         this.setCarsDocked(new HashMap<Integer, RWCar>());
+        this.setCarsToCharge(new HashMap<Integer, RWCar>());
         
         this.myStation.getDestinations().put("IST", IST);
        // this.myStation.getDestinations().put("Tagus", TP);
@@ -109,8 +113,12 @@ public class SmartFleetStation extends Activity {
         final Intent rdispatcher = new Intent(this, RouteDispatchService.class);
         startService(rdispatcher);
         
+        ChargingService.setMainActivity(this);
+        final Intent chargings = new Intent(this, ChargingService.class);
+        startService(chargings);
+        
         this.registerOnRealWorld();
-        this.registerOnCentralServer();
+       // this.registerOnCentralServer();
 		
     }
     
@@ -335,7 +343,7 @@ public class SmartFleetStation extends Activity {
 			s = new Socket(car.getIp(), car.getPort());
 			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
 			oo.writeObject(rs);
-			s.close();
+			//s.close();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -345,6 +353,68 @@ public class SmartFleetStation extends Activity {
 		}
 		
 		this.mHandler.post(this.mUpdateResults);
+		
+		
+	}
+	
+	public void executeAndUpdateCharge(){
+		
+		List<Integer> l = new ArrayList<Integer>();
+		for(RWCar c : this.getCarsToCharge().values()){
+			if(c.getPercentageBattery() == 100 || !this.getCarsDocked().containsKey(c.getId()))
+				l.add(c.getId());
+		}
+		for(int i : l){
+			this.getCarsToCharge().remove(i);
+		}
+		
+		
+		HashMap<Integer, Double> carbatcharge = new HashMap<Integer, Double>();
+		for(RWCar c : this.getCarsDocked().values()){
+			if(c.getPercentageBattery() < 100 && !this.getCarsToCharge().containsKey(c.getId()))
+				carbatcharge.put(c.getId(), c.getPercentageBattery());
+		}
+		
+		int min1id = -1;
+		double min1per = 200;
+		int min2id = -1;
+		
+		for(Entry<Integer, Double> e : carbatcharge.entrySet()){
+			if(e.getValue() < min1per){
+				min2id = min1id;
+				min1id = e.getKey();
+				min1per = e.getValue();
+			}
+		}
+		
+		if(this.getCarsToCharge().size() < 1){
+			if(min1id != -1)
+				this.getCarsToCharge().put(min1id, this.getCarsDocked().get(min1id));
+			if(min2id != -1)
+				this.getCarsToCharge().put(min2id, this.getCarsDocked().get(min2id));
+		}
+		else if(this.getCarsToCharge().size() < 2){
+			if(min1id != -1)
+				this.getCarsToCharge().put(min1id, this.getCarsDocked().get(min1id));
+		}
+		
+		
+		for(RWCar c : this.getCarsToCharge().values()){
+			Log.d("smartfleet", "Trying to charge car " + c.getId());
+			ChargeMessage cm = new ChargeMessage();
+			c.setBattery(c.getBattery() + cm.getCharge());
+			try {
+				Socket s = new Socket(c.getIp(), c.getPort());
+				ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
+				oo.writeObject(cm);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		
 	}
@@ -451,6 +521,14 @@ public class SmartFleetStation extends Activity {
 
 	public void setServerport(int serverport) {
 		this.serverport = serverport;
+	}
+
+	public void setCarsToCharge(HashMap<Integer, RWCar> carsToCharge) {
+		this.carsToCharge = carsToCharge;
+	}
+
+	public HashMap<Integer, RWCar> getCarsToCharge() {
+		return carsToCharge;
 	}
 	
 	
