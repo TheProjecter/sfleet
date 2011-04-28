@@ -1,10 +1,13 @@
 package SmartFleet.monitor;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -21,8 +24,19 @@ public class SmartFleetMonitor extends MapActivity {
 	private boolean showcars;
 	private boolean showstations;
 	
-	private ArrayList<MyStation> stationlist;
-	private ArrayList<MyCar> carlist;
+	private Map<Integer, MyStation> stationlist;
+	private Map<Integer, MyCar> carlist;
+	
+	private int myport = 5002;
+	
+	// Need handler for callbacks to the UI thread
+	final Handler mHandler = new Handler();
+	// Create runnable for posting
+	final Runnable mUpdateResults = new Runnable() {
+		public void run() {
+			mapView.invalidate();
+		}
+	};
 	
     /** Called when the activity is first created. */
     @Override
@@ -37,24 +51,8 @@ public class SmartFleetMonitor extends MapActivity {
     	this.setShowcars(true);
     	this.setShowstations(true);
     	
-    	this.stationlist = new ArrayList<MyStation>();
-    	this.carlist = new ArrayList<MyCar>();
-    	
-    	//POPULATE MONITOR FOR TESTING
-    	MyStation IST = new MyStation(0, new GeoPoint(38736830, -9138181), 3, 2);
-    	MyStation TP = new MyStation(1, new GeoPoint(38736320, -9301917), 10, 10);
-    	MyStation AIRPORT = new MyStation(2, new GeoPoint(38765775, -9133007), 40, 30);
-    	
-    	MyCar Cenas = new MyCar(4, 26000, 200, new GeoPoint(38736320, -9301917), new GeoPoint(38736830, -9138181));
-    	MyCar Cenas2 = new MyCar(8, 4000, 0, new GeoPoint(38765775, -9133007), new GeoPoint(38765775, -9133007));
-    	
-    	this.stationlist.add(IST);
-    	this.stationlist.add(TP);
-    	this.stationlist.add(AIRPORT);
-    	
-    	this.carlist.add(Cenas);
-    	this.carlist.add(Cenas2);
-      
+    	this.stationlist = new HashMap<Integer, MyStation>();
+    	this.carlist = new HashMap<Integer, MyCar>();  
        
     	this.mapc = mapView.getController();
     	//mapView.setBuiltInZoomControls(true);
@@ -63,6 +61,10 @@ public class SmartFleetMonitor extends MapActivity {
 		this.mapc.setCenter(new GeoPoint(38736830, -9138181));
 		this.mapc.animateTo(new GeoPoint(38736830, -9138181));
         this.mapView.getOverlays().add(new DrawOverlay(this));
+        
+        MonitorListener.setMainActivity(this, this.myport);
+	    final Intent monitorListenerService = new Intent(this, MonitorListener.class);
+		startService(monitorListenerService);
     }
 
     public void callStationInfo(MyStation s){
@@ -70,8 +72,8 @@ public class SmartFleetMonitor extends MapActivity {
     	builder.setCancelable(true);
     	builder.setTitle("StationID: " + s.getId());
     	builder.setInverseBackgroundForced(false);
-    	builder.setMessage("Latitude: " + s.getMylocation().getLatitudeE6()/1E6 + "\n" +
-    					   "Longitude: " + s.getMylocation().getLongitudeE6()/1E6 + "\n\n" +
+    	builder.setMessage("Latitude: " + s.getLat()/1E6 + "\n" +
+    					   "Longitude: " + s.getLon()/1E6 + "\n\n" +
     					   "On Wait Clients: " + s.getnWaitPassengers() + "\n" +
     					   "Avg. Waiting Time: " + s.getAverageWaitTime() + " min.");
     	
@@ -95,10 +97,9 @@ public class SmartFleetMonitor extends MapActivity {
     	builder.setCancelable(true);
     	builder.setTitle("CarID: " + s.getId());
     	builder.setInverseBackgroundForced(false);
-    	builder.setMessage("Latitude: " + s.getMyLocation().getLatitudeE6()/1E6 + "\n" +
-				   		   "Longitude: " + s.getMyLocation().getLongitudeE6()/1E6 + "\n\n" +
-				   		   "Battery: " + (int)s.getPercentageBattery() + "%\n" +
-    					   "Heigh: " + s.getHeight() + "m\n");
+    	builder.setMessage("Latitude: " + s.getLat()/1E6 + "\n" +
+				   		   "Longitude: " + s.getLon()/1E6 + "\n\n" +
+				   		   "Battery: " + (int)s.getPercentageBattery() + "%\n");
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     	  public void onClick(DialogInterface dialog, int which) {
@@ -121,19 +122,19 @@ public class SmartFleetMonitor extends MapActivity {
 		return false;
 	}
 
-	public ArrayList<MyStation> getStationlist() {
+	public Map<Integer, MyStation> getStationlist() {
 		return stationlist;
 	}
 
-	public void setStationlist(ArrayList<MyStation> stationlist) {
+	public void setStationlist(Map<Integer, MyStation> stationlist) {
 		this.stationlist = stationlist;
 	}
 
-	public ArrayList<MyCar> getCarlist() {
+	public Map<Integer, MyCar> getCarlist() {
 		return carlist;
 	}
 
-	public void setCarlist(ArrayList<MyCar> carlist) {
+	public void setCarlist(Map<Integer, MyCar> carlist) {
 		this.carlist = carlist;
 	}
 	

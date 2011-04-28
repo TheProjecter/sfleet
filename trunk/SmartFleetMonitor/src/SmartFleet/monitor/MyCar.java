@@ -6,23 +6,22 @@ public class MyCar {
 	
 	private double battery;
 
-	private double height;
-
 	private int id;
 
 	private double max_battery;
 
-	private GeoPoint myDestination;
+	//private GeoPoint myDestination;
 
-	private GeoPoint myLocation;
+	private int lat;
+	
+	private int lon;
 
-	public MyCar(int id, double battery, double height, GeoPoint dest, GeoPoint location){
+	public MyCar(int id, double battery, int lat, int lon){
 		this.battery = battery;
-		this.height = height;
 		this.id = id;
 		this.max_battery = 10 * 3600;
-		this.myDestination = dest;
-		this.myLocation = location;
+		this.lat = lat;
+		this.lon = lon;
 	}
 	
 	public double getBattery() {
@@ -33,14 +32,6 @@ public class MyCar {
 		this.battery = battery;
 	}
 
-	public double getHeight() {
-		return height;
-	}
-
-	public void setHeight(double height) {
-		this.height = height;
-	}
-
 	public int getId() {
 		return id;
 	}
@@ -48,27 +39,34 @@ public class MyCar {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	public GeoPoint getMyDestination() {
-		return myDestination;
-	}
-
-	public void setMyDestination(GeoPoint myDestination) {
-		this.myDestination = myDestination;
-	}
-
-	public GeoPoint getMyLocation() {
-		return myLocation;
-	}
-
-	public void setMyLocation(GeoPoint myLocation) {
-		this.myLocation = myLocation;
-	}
 	
 	public double getPercentageBattery() {
 
 		double res = (this.battery / this.max_battery) * 100;
 		return res;
 	}
-	
+
+	public double getMax_battery() {
+		return max_battery;
+	}
+
+	public void setMax_battery(double max_battery) {
+		this.max_battery = max_battery;
+	}
+
+	public int getLat() {
+		return lat;
+	}
+
+	public void setLat(int lat) {
+		this.lat = lat;
+	}
+
+	public int getLon() {
+		return lon;
+	}
+
+	public void setLon(int lon) {
+		this.lon = lon;
+	}
 }

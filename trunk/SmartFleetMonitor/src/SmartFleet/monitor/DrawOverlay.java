@@ -22,10 +22,10 @@ public class DrawOverlay extends Overlay{
 			
 			if(this.sfm.isShowstations()){
 
-				for(MyStation s : this.sfm.getStationlist())
+				for(MyStation s : this.sfm.getStationlist().values())
 				{
-					if(Math.abs((s.getMylocation().getLatitudeE6() - p.getLatitudeE6())) <= 5000 &&
-							Math.abs((s.getMylocation().getLongitudeE6() - p.getLongitudeE6())) <= 5000){
+					if(Math.abs((s.getLat() - p.getLatitudeE6())) <= 5000 &&
+							Math.abs((s.getLon() - p.getLongitudeE6())) <= 5000){
 						this.sfm.callStationInfo(s);
 					}
 				}
@@ -33,10 +33,10 @@ public class DrawOverlay extends Overlay{
 
 			if(this.sfm.isShowcars()){
 
-				for(MyCar c : this.sfm.getCarlist())
+				for(MyCar c : this.sfm.getCarlist().values())
 				{
-					if(Math.abs((c.getMyLocation().getLatitudeE6() - p.getLatitudeE6())) <= 5000 &&
-							Math.abs((c.getMyLocation().getLongitudeE6() - p.getLongitudeE6())) <= 5000){
+					if(Math.abs((c.getLat() - p.getLatitudeE6())) <= 5000 &&
+							Math.abs((c.getLon() - p.getLongitudeE6())) <= 5000){
 						this.sfm.callCarInfo(c);
 					}
 				}
@@ -57,9 +57,9 @@ public class DrawOverlay extends Overlay{
 		    paint.setAlpha(200);
 		    
 		    if(this.sfm.isShowstations() == true){
-		    	for(MyStation s : this.sfm.getStationlist())
+		    	for(MyStation s : this.sfm.getStationlist().values())
 		    	{
-		    		projection.toPixels(s.getMylocation(), point);  
+		    		projection.toPixels(new GeoPoint(s.getLat(), s.getLon()), point);  
 		    		canvas.drawCircle(point.x, point.y, 7, paint);
 		    	}
 		    }
@@ -67,13 +67,13 @@ public class DrawOverlay extends Overlay{
 		    paint.setColor(android.graphics.Color.RED);
 
 		    if(this.sfm.isShowcars()){
-		    	for(MyCar c : this.sfm.getCarlist())
+		    	for(MyCar c : this.sfm.getCarlist().values())
 		    	{	
-		    		projection.toPixels(c.getMyLocation(), point);
-		    		projection.toPixels(c.getMyDestination(), point2);
+		    		projection.toPixels(new GeoPoint(c.getLat(), c.getLon()), point);
+		    		//projection.toPixels(c.getMyDestination(), point2);
 		    		canvas.drawCircle(point.x, point.y, 5, paint);
-		    		canvas.drawCircle(point2.x, point2.y, (float) 2.5, paint);
-		    		canvas.drawLine(point.x, point.y, point2.x, point2.y, paint);
+		    		//canvas.drawCircle(point2.x, point2.y, (float) 2.5, paint);
+		    		//canvas.drawLine(point.x, point.y, point2.x, point2.y, paint);
 		    	}
 		    }
 		    
