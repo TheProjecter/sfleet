@@ -7,9 +7,15 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 
-import android.util.Log;
+import structs.ServerCar;
+import structs.ServerStation;
 
-import server.messages.*;
+import messages.CarMessage;
+import messages.Snapshot;
+import messages.StationMessage;
+
+
+import android.util.Log;
 
 public class MonitorWorker implements Runnable {
 	
@@ -40,44 +46,17 @@ public class MonitorWorker implements Runnable {
 			e.printStackTrace();
 		}
 		
-		if(packet instanceof CarMessage){
-			this.doCarMessage((CarMessage)packet);
-		}
-		else if(packet instanceof StationMessage)
-			this.doStationMessage((StationMessage)packet);
+		if(packet instanceof Snapshot)
+			this.doSnapshot((Snapshot)packet);
 			
 	}
 
-	private void doStationMessage(StationMessage packet) {
+	private void doSnapshot(Snapshot packet) {
 		// TODO Auto-generated method stub
-		Log.d("smartfleetmonitor", "Recieved message from station " + packet.getId());
-		MyStation st = this.sfm.getStationlist().get(packet.getId());
-		if(st != null){
-			st.setAverageWaitTime(packet.getWaitingtime());
-			st.setnWaitPassengers(packet.getPassengers());
-		}
-		else{
-			st = new MyStation(packet.getId(), packet.getLat(), packet.getLon(), packet.getPassengers(), packet.getWaitingtime());
-			this.sfm.getStationlist().put(st.getId(), st);
-		}
+		Log.d("smartfleetmonitor", "Recieved a snapshot");
+		this.sfm.setStationlist(packet.getStations());
+		this.sfm.setCarlist(packet.getCars());
 		this.sfm.mHandler.post(this.sfm.mUpdateResults);
-	}
-
-	private void doCarMessage(CarMessage packet) {
-		// TODO Auto-generated method stub
-		Log.d("smartfleetmonitor", "Recieved message from car " + packet.getId());
-		MyCar car = this.sfm.getCarlist().get(packet.getId());
-		if(car != null){
-			car.setBattery(packet.getBattery());
-			car.setLat(packet.getLat());
-			car.setLon(packet.getLon());
-		}
-		else{
-			car = new MyCar(packet.getId(), packet.getBattery(), packet.getLat(), packet.getLon());
-			this.sfm.getCarlist().put(car.getId(), car);
-		}
-		
-		this.sfm.mHandler.post(this.sfm.mUpdateResults);		
 	}
 
 }

@@ -5,6 +5,6 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/SmartFleetCar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/SmartFleetStation"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/SmartFleetServer"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/CommonLib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
