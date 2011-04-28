@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 
 import messages.CarAdvertisement;
 import messages.CarLogin;
+import messages.CarRegisterMessage;
 import messages.CarStationAdvertise;
 import messages.CarSubscribe;
 import messages.CarUnsubscribe;
@@ -41,11 +42,14 @@ public class SmartFleetCar extends MapActivity {
 	
 	private int id = 0;
 
-	private String realworldip = "194.210.228.46";
+	private String realworldip = "193.136.100.207";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
-	private String myip = "194.210.228.46";
+	private String myip = "193.136.100.207";
+	
+	private String serverip = "193.136.100.207";
+	private int serverport = 6799;
 	
 
 	// Need handler for callbacks to the UI thread
@@ -89,7 +93,7 @@ public class SmartFleetCar extends MapActivity {
 		this.mapView.getOverlays().add(ro);
 		this.mc.setCenter(IST);
 		this.mc.animateTo(IST);
-		
+			
 		CarDispatchService.setMainActivity(this, this.myport);
 	    final Intent CarDispatchService = new Intent(this, CarDispatchService.class);
 		startService(CarDispatchService);
@@ -97,8 +101,9 @@ public class SmartFleetCar extends MapActivity {
 		CarUpdateService.setMainActivity(this);
 	    final Intent CarUpdateService = new Intent(this, CarUpdateService.class);
 		startService(CarUpdateService);
-		
+
 		this.registerOnRealWorld();
+		this.registerOnCentralServer();
 		
 	}
 
@@ -203,6 +208,30 @@ public class SmartFleetCar extends MapActivity {
 			
 			
 			Log.d("smartfleet", "Successfully logged at Real World Server. my port:" + s.getLocalPort());
+			
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	}
+	
+public void registerOnCentralServer(){
+		
+		try {
+			Socket s = new Socket(this.serverip, this.serverport);
+			CarRegisterMessage csm = new CarRegisterMessage(this.id, 
+														this.myCar.getMyLocation().getLatitudeE6(),
+														this.myCar.getMyLocation().getLongitudeE6(),
+														this.myCar.getBattery());
+			
+			
+			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
+			oo.writeObject(csm);
+			s.close();
 			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -329,5 +358,36 @@ public class SmartFleetCar extends MapActivity {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+
+	public String getRealworldip() {
+		return realworldip;
+	}
+
+	public void setRealworldip(String realworldip) {
+		this.realworldip = realworldip;
+	}
+
+	public int getRealworldport() {
+		return realworldport;
+	}
+
+	public void setRealworldport(int realworldport) {
+		this.realworldport = realworldport;
+	}
+
+	public String getServerip() {
+		return serverip;
+	}
+
+	public void setServerip(String serverip) {
+		this.serverip = serverip;
+	}
+
+	public int getServerport() {
+		return serverport;
+	}
+
+	public void setServerport(int serverport) {
+		this.serverport = serverport;
+	}
 }
