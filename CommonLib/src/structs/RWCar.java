@@ -17,6 +17,8 @@ public class RWCar implements Serializable{
 	
 	private double height;
 	
+	private double max_battery;
+	
 	private double battery;
 	
 	private int lat;
@@ -24,7 +26,7 @@ public class RWCar implements Serializable{
 	private int log;
 	
 	public RWCar(){
-		
+		this.max_battery = 36000;
 	}
 
 	public int getId() {
@@ -81,6 +83,12 @@ public class RWCar implements Serializable{
 
 	public double getBattery() {
 		return battery;
+	}
+	
+	public double getPercentageBattery() {
+
+		double res = (this.battery / this.max_battery) * 100;
+		return res;
 	}
 	
 	
