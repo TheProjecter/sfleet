@@ -29,6 +29,7 @@
   
         <service android:name="StationDispatchService"/>
 		<service android:name="RouteDispatchService"/>
+		<service android:name="ChargingService"/>
 
     </application>
 </manifest>
