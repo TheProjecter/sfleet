@@ -3,6 +3,8 @@ package SmartFleet.station;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import messages.Station;
+
 import structs.Flight;
 
 import com.google.android.maps.GeoPoint;
@@ -11,17 +13,18 @@ public class FlyingStation {
 
 	private GeoPoint mylocation;
 
-	HashMap<String, GeoPoint> destinations;
-	//HashMap<Integer, Info> myCars;
-	ArrayList<Flight> flightqueue;
+	private HashMap<String, GeoPoint> destinations;
+
+	private ArrayList<Flight> flightqueue;
+	
+	private ArrayList<Station> stations;
 
 	public FlyingStation(GeoPoint location){
 		
 		this.mylocation = location;
 		this.destinations = new HashMap<String, GeoPoint>();
-		//this.myCars = new HashMap<Integer, Info>();
 		this.flightqueue = new ArrayList<Flight>();
-		
+		this.stations = new ArrayList<Station>();
 	}
 	
 	public void setMylocation(GeoPoint mylocation) {
@@ -46,6 +49,14 @@ public class FlyingStation {
 	
 	public ArrayList<Flight> getFlightQueue(){
 		return flightqueue;
+	}
+
+	public void setStations(ArrayList<Station> stations) {
+		this.stations = stations;
+	}
+
+	public ArrayList<Station> getStations() {
+		return stations;
 	}	
 	
 }

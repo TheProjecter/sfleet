@@ -18,7 +18,10 @@ import javax.xml.parsers.SAXParserFactory;
 
 import messages.LoginResponse;
 import messages.RouteSending;
+import messages.Station;
+import messages.StationList;
 import messages.StationLogin;
+import messages.StationRegisterMessage;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -57,11 +60,14 @@ public class SmartFleetStation extends Activity {
 	
 	private int id = 0;
 	
-	private String realworldip = "194.210.228.46";
+	private String realworldip = "193.136.100.207";
 	private int realworldport = 6798;
 	
 	private int myport = 5001;
-	private String myip = "194.210.228.46";
+	private String myip = "193.136.100.207";
+	
+	private String serverip = "193.136.100.207";
+	private int serverport = 6799;
 	
 	private boolean booking = false;
 	
@@ -104,6 +110,7 @@ public class SmartFleetStation extends Activity {
         startService(rdispatcher);
         
         this.registerOnRealWorld();
+        this.registerOnCentralServer();
 		
     }
     
@@ -229,7 +236,7 @@ public class SmartFleetStation extends Activity {
     	
     }
 
-public void registerOnRealWorld(){
+    public void registerOnRealWorld(){
 		
 		try {
 			Socket s = new Socket(this.realworldip, this.realworldport);
@@ -265,10 +272,44 @@ public void registerOnRealWorld(){
 	
 	}
 
+
+    public void registerOnCentralServer(){
+
+    	try {
+    		Socket s = new Socket(this.serverip, this.serverport);
+    		StationRegisterMessage ssm = new StationRegisterMessage(this.id,
+    															this.myStation.getMylocation().getLatitudeE6(),
+    															this.myStation.getMylocation().getLongitudeE6(),
+    															this.myport,
+    															this.myip,
+    															this.carsDocked);
+
+    		ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
+    		oo.writeObject(ssm);
+    		ObjectInput oi = new ObjectInputStream(s.getInputStream());
+			Object packet = oi.readObject();
+			s.close();			
+			
+			this.myStation.setStations(((StationList)packet).getStations());
+			
+    	} catch (ClassNotFoundException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+
+    	} catch (UnknownHostException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	} catch (IOException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	}
+
+    }
+
 	public void dispatchRoute(){
 		//TODO FALTA OLHAR PARA ESTA MERDA COMO DEVE SER
 		
-		if(this.carsDocked.isEmpty() || this.myStation.flightqueue.isEmpty())
+		if(this.carsDocked.isEmpty() || this.myStation.getFlightQueue().isEmpty())
 			return;
 		
 		RWCar car = null;
@@ -279,8 +320,8 @@ public void registerOnRealWorld(){
 		this.carsDocked.remove(car.getId());
 		
 		Route r = new Route();
-		r.getRoute().add(this.myStation.flightqueue.get(0));
-		this.myStation.flightqueue.remove(0);
+		r.getRoute().add(this.myStation.getFlightQueue().get(0));
+		this.myStation.getFlightQueue().remove(0);
 		Flight dest = new Flight();
 		dest.setLat(this.getMylocation().getLatitudeE6());
 		dest.setLon(this.getMylocation().getLongitudeE6());
@@ -379,5 +420,39 @@ public void registerOnRealWorld(){
 	public HashMap<Integer, RWCar> getCarsDocked() {
 		return carsDocked;
 	}
+
+	public String getRealworldip() {
+		return realworldip;
+	}
+
+	public void setRealworldip(String realworldip) {
+		this.realworldip = realworldip;
+	}
+
+	public int getRealworldport() {
+		return realworldport;
+	}
+
+	public void setRealworldport(int realworldport) {
+		this.realworldport = realworldport;
+	}
+
+	public String getServerip() {
+		return serverip;
+	}
+
+	public void setServerip(String serverip) {
+		this.serverip = serverip;
+	}
+
+	public int getServerport() {
+		return serverport;
+	}
+
+	public void setServerport(int serverport) {
+		this.serverport = serverport;
+	}
+	
+	
     
 }
