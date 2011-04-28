@@ -136,6 +136,11 @@ public class FlyingCar extends TimerTask {
 
 		this.battery = battery;
 	}
+	
+	public void addBattery(double battery) {
+
+		this.battery += battery;
+	}
 
 	public void setH(Handler h) {
 
@@ -192,6 +197,11 @@ public class FlyingCar extends TimerTask {
 	}
 
 	public void updatePosition() {
+		
+		if(this.getBattery() == 0){
+			this.setHeight(0);
+			return;
+		}
 		
 		if (!this.route.getRoute().isEmpty()) {
 
@@ -251,6 +261,8 @@ public class FlyingCar extends TimerTask {
 					logd = this.route.getRoute().get(0).getLon();
 
 			this.battery -= 10;
+			if(this.battery < 0)
+				this.battery = 0;
 
 			this.myLocation = new GeoPoint(latd, logd);
 

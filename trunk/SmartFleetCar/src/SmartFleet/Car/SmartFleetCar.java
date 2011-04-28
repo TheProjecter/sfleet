@@ -42,13 +42,13 @@ public class SmartFleetCar extends MapActivity {
 	
 	private int id = 0;
 
-	private String realworldip = "193.136.100.207";
+	private String realworldip = "192.168.0.11";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
-	private String myip = "193.136.100.207";
+	private String myip = "192.168.0.11";
 	
-	private String serverip = "193.136.100.207";
+	private String serverip = "194.210.228.38";
 	private int serverport = 6799;
 	
 
@@ -103,7 +103,7 @@ public class SmartFleetCar extends MapActivity {
 		startService(CarUpdateService);
 
 		this.registerOnRealWorld();
-		this.registerOnCentralServer();
+		//this.registerOnCentralServer();
 		
 	}
 
@@ -306,7 +306,7 @@ public void registerOnCentralServer(){
 			ObjectInput oi = new ObjectInputStream(s.getInputStream());
 			CarStationAdvertise csa = (CarStationAdvertise) oi.readObject();
 			s.close();
-		
+			
 			if(csa.getStation() != null){
 				Socket s2 = new Socket(csa.getStation().getIp(), csa.getStation().getPort());
 				CarAdvertisement ca = new CarAdvertisement();
