@@ -7,7 +7,8 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import server.messages.Snapshot;
+import messages.Snapshot;
+
 
 
 public class UpdateMonitor implements Runnable {

@@ -1,43 +1,38 @@
 package SmartFleet;
 
-import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import server.messages.CarMessage;
-import server.messages.StationMessage;
+import structs.ServerCar;
+import structs.ServerStation;
+
+
 
 
 public class ServerState {
 	
-	private Map<Integer, StationMessage> stations;
+	private Map<Integer, ServerStation> stations;
 	
-	private Map<Integer, CarMessage> cars;
+	private Map<Integer, ServerCar> cars;
 	
 	public ServerState(){
-		this.stations = new HashMap<Integer, StationMessage>();
-		this.cars = new HashMap<Integer, CarMessage>();
+		this.stations = new HashMap<Integer, ServerStation>();
+		this.cars = new HashMap<Integer, ServerCar>();
 	}
 
-	public Map<Integer, StationMessage> getStations() {
+	public Map<Integer, ServerStation> getStations() {
 		return stations;
 	}
 
-	public void setStations(Map<Integer, StationMessage> stations) {
+	public void setStations(Map<Integer, ServerStation> stations) {
 		this.stations = stations;
 	}
 
-	public Map<Integer, CarMessage> getCars() {
+	public Map<Integer, ServerCar> getCars() {
 		return cars;
 	}
 
-	public void setCars(Map<Integer, CarMessage> cars) {
+	public void setCars(Map<Integer, ServerCar> cars) {
 		this.cars = cars;
 	}
 }
