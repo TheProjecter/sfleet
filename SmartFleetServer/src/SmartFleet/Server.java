@@ -2,11 +2,13 @@ package SmartFleet;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import server.messages.CarMessage;
-import server.messages.StationMessage;
+import messages.CarMessage;
+import messages.StationMessage;
+
 
 
 
@@ -54,25 +56,26 @@ public class Server {
     	state.getUpdatestations().put(TP.getId(), TP);*/
 
 				
-		//try {
-			//server = new ServerSocket(6799);
+		try {
+			server = new ServerSocket(6799);
 			
 			System.out.println("->Central Server: I am running...");
 			
-			UpdateMonitor updater = new UpdateMonitor(state, "194.210.228.50", 5002);
+			UpdateMonitor updater = new UpdateMonitor(state, "193.136.100.207", 5002);
 			Thread u = new Thread(updater);
 			u.start();
 					
 			while(true){
-				worker = new ServerWorker(null, state);
+				Socket s = server.accept();
+				worker = new ServerWorker(s, state);
 				Thread t = new Thread(worker);
 				t.start();
 			}
 			
-		//} catch (IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
-	//		e.printStackTrace();
-	//	}
+			e.printStackTrace();
+		}
 		
 		
 	}
