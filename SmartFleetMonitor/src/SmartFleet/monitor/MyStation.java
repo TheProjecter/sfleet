@@ -1,38 +1,27 @@
 package SmartFleet.monitor;
 
-import java.util.ArrayList;
-
-import SmartFleet.station.Flight;
-
-import com.google.android.maps.GeoPoint;
-
 public class MyStation {
 
 	private int id;
 
-	private GeoPoint mylocation;
+	private int lat;
+	
+	private int lon;
 
 	private int nWaitPassengers;
 	
 	private double AverageWaitTime;
 
-	public MyStation(int id, GeoPoint location, int nWaitP, double avgwt){
+	public MyStation(int id, int lat, int lon, int nWaitP, double avgwt){
 		
 		this.id = id;
-		this.mylocation = location;
+		this.lat = lat;
+		this.lon = lon;
 		this.setnWaitPassengers(nWaitP);
 		this.setAverageWaitTime(avgwt);
 		
 	}
-	
-	public void setMylocation(GeoPoint mylocation) {
-		this.mylocation = mylocation;
-	}
-	
-	public GeoPoint getMylocation() {
-		return mylocation;
-	}
-	
+		
 	public void setId(int id) {
 		this.id = id;
 	}
@@ -56,6 +45,21 @@ public class MyStation {
 	public double getAverageWaitTime() {
 		return AverageWaitTime;
 	}
-	
+
+	public int getLat() {
+		return lat;
+	}
+
+	public void setLat(int lat) {
+		this.lat = lat;
+	}
+
+	public int getLon() {
+		return lon;
+	}
+
+	public void setLon(int lon) {
+		this.lon = lon;
+	}	
 	
 }
