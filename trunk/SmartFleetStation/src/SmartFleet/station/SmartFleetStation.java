@@ -63,13 +63,13 @@ public class SmartFleetStation extends Activity {
 	
 	private int id = 0;
 	
-	private String realworldip = "192.168.0.101";
+	private String realworldip = "194.210.228.87";
 	private int realworldport = 6798;
 	
 	private int myport = 5001;
-	private String myip = "192.168.0.100";
+	private String myip = "194.210.228.87";
 	
-	private String serverip = "194.210.228.38";
+	private String serverip = "194.210.228.87";
 	private int serverport = 6799;
 	
 	private boolean booking = false;
@@ -118,8 +118,12 @@ public class SmartFleetStation extends Activity {
         final Intent chargings = new Intent(this, ChargingService.class);
         startService(chargings);
         
+        UpdateCentralServerService.setMainActivity(this);
+        final Intent ucss = new Intent(this, UpdateCentralServerService.class);
+        startService(ucss);
+        
         this.registerOnRealWorld();
-       // this.registerOnCentralServer();
+        this.registerOnCentralServer();
 		
     }
     

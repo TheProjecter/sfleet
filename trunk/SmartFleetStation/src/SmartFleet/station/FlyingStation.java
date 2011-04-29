@@ -26,6 +26,7 @@ public class FlyingStation {
 		this.destinations = new HashMap<String, GeoPoint>();
 		this.flightqueue = new ArrayList<Flight>();
 		this.stations = new ArrayList<Station>();
+		this.waitingTime = new ArrayList<Long>();
 	}
 	
 	public void setMylocation(GeoPoint mylocation) {

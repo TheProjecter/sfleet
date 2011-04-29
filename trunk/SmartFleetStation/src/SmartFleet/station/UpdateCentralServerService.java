@@ -39,9 +39,11 @@ private static SmartFleetStation MAIN_ACTIVITY;
 				
 				long time = 0;
 				
-				for(long l : this.sfs.getMyStation().getWaitingTime())
-					time += l;
-				time /= this.sfs.getMyStation().getWaitingTime().size();
+				if(!this.sfs.getMyStation().getWaitingTime().isEmpty()){
+					for(long l : this.sfs.getMyStation().getWaitingTime())
+						time += l;
+					time /= this.sfs.getMyStation().getWaitingTime().size();
+				}
 				
 				ServerStation ss = new ServerStation(this.sfs.getId(),
 													this.sfs.getMyStation().getMylocation().getLatitudeE6(),
