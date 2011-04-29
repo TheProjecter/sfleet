@@ -264,7 +264,7 @@ public void registerOnCentralServer(){
 			CarUpdateResponse cur = (CarUpdateResponse) oi.readObject();
 			s.close();
 			
-			this.getMyCar().setStations(cur.getStations());
+			this.getMyCar().setNearStation(cur.isNearStation());
 			this.getMyCar().setCarsAt200(cur.getCarsAt200());
 			this.getMyCar().setCarsAt300(cur.getCarsAt300());
 						

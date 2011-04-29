@@ -35,7 +35,7 @@ public class FlyingCar extends TimerTask {
 
 	GeoPoint myLocation;
 	
-	private ArrayList<RWStation> stations;
+	private boolean nearStation;
 	
 	private ArrayList<RWCar> carsAt200;
 	
@@ -74,14 +74,13 @@ public class FlyingCar extends TimerTask {
 		//this.flight = null;
 		//this.port = 0;
 		
-		this.stations = new ArrayList<RWStation>();
-		
 		this.carsAt200 = new ArrayList<RWCar>();
 		
 		this.carsAt300 = new ArrayList<RWCar>();
 		
 		this.carsSeen = new HashMap<Integer, RWCar>();
 		
+		this.setNearStation(true);
 		
 		this.route = new Route();
 		this.setCarsSeen(new HashMap<Integer, RWCar>());
@@ -306,14 +305,6 @@ public class FlyingCar extends TimerTask {
 		this.route = route;
 	}
 
-	public ArrayList<RWStation> getStations() {
-		return stations;
-	}
-
-	public void setStations(ArrayList<RWStation> stations) {
-		this.stations = stations;
-	}
-
 	public ArrayList<RWCar> getCarsAt200() {
 		return carsAt200;
 	}
@@ -348,6 +339,14 @@ public class FlyingCar extends TimerTask {
 	
 	public void incrementClock() {
 		this.clock++;
+	}
+
+	public void setNearStation(boolean nearStation) {
+		this.nearStation = nearStation;
+	}
+
+	public boolean isNearStation() {
+		return nearStation;
 	}
 	
 }
