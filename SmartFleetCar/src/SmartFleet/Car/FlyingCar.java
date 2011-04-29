@@ -74,6 +74,15 @@ public class FlyingCar extends TimerTask {
 		//this.flight = null;
 		//this.port = 0;
 		
+		this.stations = new ArrayList<RWStation>();
+		
+		this.carsAt200 = new ArrayList<RWCar>();
+		
+		this.carsAt300 = new ArrayList<RWCar>();
+		
+		this.carsSeen = new HashMap<Integer, RWCar>();
+		
+		
 		this.route = new Route();
 		this.setCarsSeen(new HashMap<Integer, RWCar>());
 		
