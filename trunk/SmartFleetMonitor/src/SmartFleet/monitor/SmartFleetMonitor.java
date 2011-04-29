@@ -1,12 +1,15 @@
 package SmartFleet.monitor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import structs.Flight;
+import structs.RWCar;
 import structs.ServerCar;
 import structs.ServerStation;
-
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -71,25 +74,57 @@ public class SmartFleetMonitor extends MapActivity {
     }
 
     public void callStationInfo(ServerStation s){
+    	
+    	int numberwaiting = 0;
+    	double avgtime = s.getAvgwaittime() / 1000;
+    	HashMap<Integer, RWCar> carlist = s.getCarsDocked();
+    	ArrayList<Flight> flist = s.getFlightqueue();
+    	
+    	for(Flight f : flist){
+    		numberwaiting += f.getNpassengers();
+    	}
+    		
+    	
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setCancelable(true);
     	builder.setTitle("StationID: " + s.getId());
     	builder.setInverseBackgroundForced(false);
     	builder.setMessage("Latitude: " + s.getLat()/1E6 + "\n" +
-    					   "Longitude: " + s.getLon()/1E6 + "\n\n");/* +
-    					   "On Wait Clients: " + s.getnWaitPassengers() + "\n" +
-    					   "Avg. Waiting Time: " + s.getAverageWaitTime() + " min.");*/
+    					   "Longitude: " + s.getLon()/1E6 + "\n\n" +
+    					   "On Wait Clients: " + numberwaiting + "\n" +
+    					   "Avg. Waiting Time: " + avgtime + " sec.");
+    	/*final CharSequence[] items = {"Red", "Green", "Blue"};
+    	builder.setItems(items, new DialogInterface.OnClickListener() {
+      	  public void onClick(DialogInterface dialog, int which) {
+      	    dialog.dismiss();
+      	  }
+      	});*/
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     	  public void onClick(DialogInterface dialog, int which) {
     	    dialog.dismiss();
     	  }
     	});
-    	/*builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-    	  public void onClick(DialogInterface dialog, int which) {
-    	    dialog.dismiss();
-    	  }
-    	});*/
+    	
+    	final SmartFleetMonitor smf = this;
+    	
+    	builder.setNegativeButton("Cars", new DialogInterface.OnClickListener() {
+
+    		public void onClick(DialogInterface dialog, int which) {
+    			AlertDialog.Builder builder = new AlertDialog.Builder(smf);
+    			builder.setCancelable(true);
+    			builder.setTitle("Cars");
+    			final CharSequence[] items = {"Red", "Green", "Blue"};
+    			builder.setItems(items, new DialogInterface.OnClickListener() {
+    				public void onClick(DialogInterface dialog, int which) {
+    					dialog.dismiss();
+    				}
+    			});
+    			AlertDialog alert = builder.create();
+    	    	alert.show();
+    		}
+    	});
+
     	AlertDialog alert = builder.create();
     	alert.show();
 
