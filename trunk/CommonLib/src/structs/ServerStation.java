@@ -15,15 +15,17 @@ public class ServerStation implements Serializable{
 	private int lon;
 	private int port;
 	private String ip;
+	private long avgwaittime;
 	private HashMap<Integer, RWCar> carsDocked;
 	private ArrayList<Flight> flightqueue;
 
-	public ServerStation(int id, int lat, int lon, int port, String ip, HashMap<Integer, RWCar> carsDocked, ArrayList<Flight> flightqueue){
+	public ServerStation(int id, int lat, int lon, int port, String ip, long avgwaittime, HashMap<Integer, RWCar> carsDocked, ArrayList<Flight> flightqueue){
 		this.id = id;
 		this.lat = lat;
 		this.setLon(lon);
 		this.ip = ip;
 		this.port = port;
+		this.setAvgwaittime(avgwaittime);
 		this.carsDocked = carsDocked;
 		this.flightqueue = flightqueue;
 		
@@ -83,6 +85,14 @@ public class ServerStation implements Serializable{
 
 	public void setFlightqueue(ArrayList<Flight> flightqueue) {
 		this.flightqueue = flightqueue;
+	}
+
+	public void setAvgwaittime(long avgwaittime) {
+		this.avgwaittime = avgwaittime;
+	}
+
+	public long getAvgwaittime() {
+		return avgwaittime;
 	}
 	
 	

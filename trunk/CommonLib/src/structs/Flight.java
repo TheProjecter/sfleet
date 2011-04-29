@@ -13,6 +13,7 @@ public class Flight implements Serializable{
 	private String destination;
 	private int lat;
 	private int lon;
+	private long timeof;
 	
 	public Flight(){
 		this.partyname = "";
@@ -63,6 +64,14 @@ public class Flight implements Serializable{
 
 	public void setLon(int lon) {
 		this.lon = lon;
+	}
+
+	public void setTimeof(long timeof) {
+		this.timeof = timeof;
+	}
+
+	public long getTimeof() {
+		return timeof;
 	}
 	
 }
