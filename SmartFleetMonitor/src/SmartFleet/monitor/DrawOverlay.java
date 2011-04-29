@@ -29,6 +29,7 @@ public class DrawOverlay extends Overlay{
 					if(Math.abs((s.getLat() - p.getLatitudeE6())) <= 5000 &&
 							Math.abs((s.getLon() - p.getLongitudeE6())) <= 5000){
 						this.sfm.callStationInfo(s);
+						return true;
 					}
 				}
 			}
