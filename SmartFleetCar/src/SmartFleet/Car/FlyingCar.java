@@ -237,6 +237,8 @@ public class FlyingCar extends TimerTask {
 
 			if (this.height == 0)
 				this.setHeight(200);
+			else if(this.getCarsAt200().isEmpty())
+				this.setHeight(200);
 
 			double disty = this.route.getRoute().get(0).getLat()
 					- this.myLocation.getLatitudeE6();
