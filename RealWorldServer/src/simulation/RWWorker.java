@@ -124,7 +124,7 @@ public class RWWorker implements Runnable{
 			//TODO RESPOSTA AO UPDATE
 			ArrayList<RWCar> carsAt200 = new ArrayList<RWCar>();
 			ArrayList<RWCar> carsAt300 = new ArrayList<RWCar>();
-			ArrayList<RWStation> stations = new ArrayList<RWStation>();
+			boolean nearStation = false;
 			for(RWCar car : this.state.getCarSubscribers().values()){
 				double distance = this.distanceBetween(car.getLat(), car.getLog(), c.getLat(), c.getLog());
 				if(distance <= 200){
@@ -148,11 +148,13 @@ public class RWWorker implements Runnable{
 				}
 			}
 			for(RWStation station : this.state.getStationCommList().values()){
-				if(this.distanceBetween(station.getLat(), station.getLog(), c.getLat(), c.getLog()) <= 300)
-					stations.add(station);
+				if(this.distanceBetween(station.getLat(), station.getLog(), c.getLat(), c.getLog()) <= 300){
+					nearStation = true;
+					break;
+				}
 			}
 			
-			CarUpdateResponse cur = new CarUpdateResponse(stations, carsAt200, carsAt300);
+			CarUpdateResponse cur = new CarUpdateResponse(carsAt200, carsAt300, nearStation);
 			ObjectOutput oo = new ObjectOutputStream(this.socket.getOutputStream());
 			oo.writeObject(cur);	
 		} catch (IOException e) {
