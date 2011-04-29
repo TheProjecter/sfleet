@@ -15,12 +15,15 @@ public class RWState {
 	private HashMap<Integer, RWCar> carCommList;
 	private HashMap<Integer, RWCar> carSubscribers;
 	private HashMap<Integer, RWStation> stationCommList;
+	private HashMap<Integer, RWCar> carCrash;
+
 	
 	public RWState(){
 		this.serialid = 0;
 		this.setCarCommList(new HashMap<Integer, RWCar>());
 		this.setCarSubscribers(new HashMap<Integer, RWCar>());
 		this.setStationCommList(new HashMap<Integer, RWStation>());
+		this.setCarCrash(new HashMap<Integer, RWCar>());
 	}
 	
 	public int getSerial(){
@@ -65,6 +68,14 @@ public class RWState {
 
 	public HashMap<Integer, RWCar> getCarSubscribers() {
 		return carSubscribers;
+	}
+
+	public void setCarCrash(HashMap<Integer, RWCar> carCrash) {
+		this.carCrash = carCrash;
+	}
+
+	public HashMap<Integer, RWCar> getCarCrash() {
+		return carCrash;
 	}
 	
 	
