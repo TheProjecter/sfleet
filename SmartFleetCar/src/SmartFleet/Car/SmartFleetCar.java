@@ -42,11 +42,11 @@ public class SmartFleetCar extends MapActivity {
 	
 	private int id = 0;
 
-	private String realworldip = "192.168.0.11";
+	private String realworldip = "192.210.228.82";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
-	private String myip = "192.168.0.11";
+	private String myip = "192.210.228.82";
 	
 	private String serverip = "194.210.228.38";
 	private int serverport = 6799;
@@ -101,6 +101,10 @@ public class SmartFleetCar extends MapActivity {
 		CarUpdateService.setMainActivity(this);
 	    final Intent CarUpdateService = new Intent(this, CarUpdateService.class);
 		startService(CarUpdateService);
+		
+		CarCommunicationService.setMainActivity(this);
+	    final Intent carCommunicationService = new Intent(this, CarCommunicationService.class);
+		startService(carCommunicationService);
 
 		this.registerOnRealWorld();
 		//this.registerOnCentralServer();
@@ -260,6 +264,10 @@ public void registerOnCentralServer(){
 			CarUpdateResponse cur = (CarUpdateResponse) oi.readObject();
 			s.close();
 			
+			this.getMyCar().setStations(cur.getStations());
+			this.getMyCar().setCarsAt200(cur.getCarsAt200());
+			this.getMyCar().setCarsAt300(cur.getCarsAt300());
+						
 			//TODO processar o input do update
 			
 			Log.d("CarUpdate", "Successfully updated.");

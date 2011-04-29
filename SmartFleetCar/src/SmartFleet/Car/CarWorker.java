@@ -7,6 +7,7 @@ import java.net.Socket;
 
 import messages.ChargeMessage;
 import messages.RouteSending;
+import structs.RWCar;
 
 public class CarWorker implements Runnable{
 
@@ -40,6 +41,36 @@ public class CarWorker implements Runnable{
 		
 	}
 	
+	public void doRWCar(RWCar car){
+		try {
+			this.socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(car.getDistance() <= 200 && !heightOK(car.getHeight(), this.sfc.getMyCar().getHeight())){
+			if(this.sfc.getMyCar().getBattery() > car.getBattery()){
+				double h = this.sfc.getMyCar().getHeight();
+				this.sfc.getMyCar().setHeight(h + 100);
+			}
+			else if(this.sfc.getId() > car.getId()){
+				double h = this.sfc.getMyCar().getHeight();
+				this.sfc.getMyCar().setHeight(h + 100);
+			}
+		}
+		this.sfc.getMyCar().getCarsSeen().put(car.getId(), car);		
+	}
+	
+	private boolean heightOK(double height, double height2) {
+		// TODO Auto-generated method stub
+		double difference = Math.abs(height - height2);
+		
+		if(difference >= 100)
+			return true;
+		else
+			return false;
+	}
+
 	public void run() {
 		
 		
@@ -64,6 +95,9 @@ public class CarWorker implements Runnable{
 		}
 		else if(packet instanceof ChargeMessage){
 			this.doCharge((ChargeMessage)packet);
+		}
+		else if(packet instanceof RWCar){
+			this.doRWCar((RWCar)packet);
 		}
 		
 	
