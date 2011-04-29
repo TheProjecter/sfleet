@@ -16,6 +16,7 @@ public class FlyingStation {
 	private HashMap<String, GeoPoint> destinations;
 
 	private ArrayList<Flight> flightqueue;
+	private ArrayList<Long> waitingTime;
 	
 	private ArrayList<Station> stations;
 
@@ -57,6 +58,14 @@ public class FlyingStation {
 
 	public ArrayList<Station> getStations() {
 		return stations;
+	}
+
+	public void setWaitingTime(ArrayList<Long> waitingTime) {
+		this.waitingTime = waitingTime;
+	}
+
+	public ArrayList<Long> getWaitingTime() {
+		return waitingTime;
 	}	
 	
 }

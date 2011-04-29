@@ -10,7 +10,7 @@ import android.util.Log;
 
 public class ChargingService extends Service{
 
-private static SmartFleetStation MAIN_ACTIVITY;
+	private static SmartFleetStation MAIN_ACTIVITY;
 	
 	private Timer timer = new Timer();
 	

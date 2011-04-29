@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -62,11 +63,11 @@ public class SmartFleetStation extends Activity {
 	
 	private int id = 0;
 	
-	private String realworldip = "192.168.0.11";
+	private String realworldip = "192.168.0.101";
 	private int realworldport = 6798;
 	
 	private int myport = 5001;
-	private String myip = "192.168.0.11";
+	private String myip = "192.168.0.100";
 	
 	private String serverip = "194.210.228.38";
 	private int serverport = 6799;
@@ -224,7 +225,8 @@ public class SmartFleetStation extends Activity {
        	}else{
        		this.currentflight.setPartyname(pname);
        		this.currentflight.setNpassengers(numb);
-
+       		this.currentflight.setTimeof(Calendar.getInstance().getTimeInMillis());
+       		
        		this.myStation.getFlightQueue().add(this.currentflight);
        		this.currentflight = null;
        		this.mHandler.post(mUpdateResults);
@@ -329,7 +331,8 @@ public class SmartFleetStation extends Activity {
 		
 		Route r = new Route();
 		r.getRoute().add(this.myStation.getFlightQueue().get(0));
-		this.myStation.getFlightQueue().remove(0);
+		Flight f = this.myStation.getFlightQueue().remove(0);
+		this.myStation.getWaitingTime().add(Calendar.getInstance().getTimeInMillis() - f.getTimeof());
 		Flight dest = new Flight();
 		dest.setLat(this.getMylocation().getLatitudeE6());
 		dest.setLon(this.getMylocation().getLongitudeE6());
