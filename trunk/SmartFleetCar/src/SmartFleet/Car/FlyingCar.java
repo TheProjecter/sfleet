@@ -1,11 +1,14 @@
 package SmartFleet.Car;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import structs.RWCar;
+import structs.RWStation;
 import structs.Route;
 import android.os.Handler;
-import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
@@ -32,13 +35,19 @@ public class FlyingCar extends TimerTask {
 
 	GeoPoint myLocation;
 	
-	//private Map<Integer, Info> stations;
+	private ArrayList<RWStation> stations;
 	
-	//private Map<Integer, Info> cars;
+	private ArrayList<RWCar> carsAt200;
+	
+	private ArrayList<RWCar> carsAt300;
+	
+	private HashMap<Integer, RWCar> carsSeen;
 	
 	//private Flight flight;
 	
 	private Route route;
+	
+	private int clock;
 
 	public FlyingCar(MapController m, RouteOverlay r, Handler hand, Runnable ru) {
 
@@ -66,6 +75,9 @@ public class FlyingCar extends TimerTask {
 		//this.port = 0;
 		
 		this.route = new Route();
+		this.setCarsSeen(new HashMap<Integer, RWCar>());
+		
+		this.setClock(0);
 	}
 
 	public double getBattery() {
@@ -283,6 +295,48 @@ public class FlyingCar extends TimerTask {
 		this.route = route;
 	}
 
+	public ArrayList<RWStation> getStations() {
+		return stations;
+	}
+
+	public void setStations(ArrayList<RWStation> stations) {
+		this.stations = stations;
+	}
+
+	public ArrayList<RWCar> getCarsAt200() {
+		return carsAt200;
+	}
+
+	public void setCarsAt200(ArrayList<RWCar> carsAt200) {
+		this.carsAt200 = carsAt200;
+	}
+
+	public ArrayList<RWCar> getCarsAt300() {
+		return carsAt300;
+	}
+
+	public void setCarsAt300(ArrayList<RWCar> carsAt300) {
+		this.carsAt300 = carsAt300;
+	}
+
+	public void setCarsSeen(HashMap<Integer, RWCar> carsSeen) {
+		this.carsSeen = carsSeen;
+	}
+
+	public HashMap<Integer, RWCar> getCarsSeen() {
+		return carsSeen;
+	}
+
+	public void setClock(int clock) {
+		this.clock = clock;
+	}
+
+	public int getClock() {
+		return clock;
+	}
 	
+	public void incrementClock() {
+		this.clock++;
+	}
 	
 }

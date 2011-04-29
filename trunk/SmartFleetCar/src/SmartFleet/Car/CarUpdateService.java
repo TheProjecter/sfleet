@@ -48,7 +48,7 @@ public class CarUpdateService extends Service{
 				
 			}
 			
-		}, 0, 500);
+		}, 0, 1000);
 	}
 	
 	@Override
