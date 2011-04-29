@@ -2,19 +2,10 @@ package SmartFleet.monitor;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 
-import structs.ServerCar;
-import structs.ServerStation;
-
-import messages.CarMessage;
 import messages.Snapshot;
-import messages.StationMessage;
-
-
 import android.util.Log;
 
 public class MonitorWorker implements Runnable {
@@ -37,7 +28,7 @@ public class MonitorWorker implements Runnable {
 			packet = io.readObject();
 			socket.close();
 		} catch (EOFException e){
-			Log.d("Merda", e.toString());
+			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
