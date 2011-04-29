@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import messages.CarLogin;
 import messages.CarStationAdvertise;
@@ -121,11 +122,39 @@ public class RWWorker implements Runnable{
 		
 		try{
 			//TODO RESPOSTA AO UPDATE
-			CarUpdateResponse cur = new CarUpdateResponse();
+			ArrayList<RWCar> carsAt200 = new ArrayList<RWCar>();
+			ArrayList<RWCar> carsAt300 = new ArrayList<RWCar>();
+			ArrayList<RWStation> stations = new ArrayList<RWStation>();
+			for(RWCar car : this.state.getCarSubscribers().values()){
+				double distance = this.distanceBetween(car.getLat(), car.getLog(), c.getLat(), c.getLog());
+				if(distance <= 200){
+					RWCar carInfo = new RWCar(car.getIp(), car.getPort());
+					carsAt200.add(carInfo);
+				}
+				else if(distance <= 300){
+					RWCar carInfo = new RWCar(car.getIp(), car.getPort());
+					carsAt300.add(carInfo);
+				}
+			}
+			for(RWCar car : this.state.getCarCrash().values()){
+				double distance = this.distanceBetween(car.getLat(), car.getLog(), c.getLat(), c.getLog());
+				if(distance <= 200){
+					RWCar carInfo = new RWCar(car.getIp(), car.getPort());
+					carsAt200.add(carInfo);
+				}
+				else if(distance <= 300){
+					RWCar carInfo = new RWCar(car.getIp(), car.getPort());
+					carsAt300.add(carInfo);
+				}
+			}
+			for(RWStation station : this.state.getStationCommList().values()){
+				if(this.distanceBetween(station.getLat(), station.getLog(), c.getLat(), c.getLog()) <= 300)
+					stations.add(station);
+			}
 			
+			CarUpdateResponse cur = new CarUpdateResponse(stations, carsAt200, carsAt300);
 			ObjectOutput oo = new ObjectOutputStream(this.socket.getOutputStream());
 			oo.writeObject(cur);	
-			this.socket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -136,11 +165,12 @@ public class RWWorker implements Runnable{
 		
 		CarStationAdvertise csa = new CarStationAdvertise();
 		csa.setStation(this.state.getCarStation(cs.getId()));
+		if(csa.getStation() == null)
+			this.state.getCarCrash().put(cs.getId(), this.state.getCarCommList().get(cs.getId()));
 		
 		try {
 			ObjectOutput oo = new ObjectOutputStream(this.socket.getOutputStream());
 			oo.writeObject(csa);
-			this.socket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -186,10 +216,20 @@ public class RWWorker implements Runnable{
 		else if(packet instanceof CarUnsubscribe){
 			this.doCarUnsubscribe((CarUnsubscribe)packet);
 		}
+			
+	}
+	
+	public double distanceBetween(int lat1, int lon1, int lat2, int lon2){
 		
+		lat1 /= 0.000009;
+		lon1 /= 0.000011;
 		
+		lat2 /= 0.000009;
+		lon2 /= 0.000011;
 		
+		double dist = Math.sqrt(Math.pow((lat1 - lat2), 2) + Math.pow((lon1 - lon2), 2));
 		
+		return dist;
 	}
 
 }
