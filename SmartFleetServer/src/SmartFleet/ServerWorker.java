@@ -8,15 +8,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-import structs.ServerCar;
-import structs.ServerStation;
-
-import messages.CarMessage;
 import messages.CarRegisterMessage;
 import messages.Station;
 import messages.StationList;
-import messages.StationMessage;
 import messages.StationRegisterMessage;
+import structs.ServerCar;
+import structs.ServerStation;
 
 
 public class ServerWorker implements Runnable{
@@ -52,8 +49,8 @@ public class ServerWorker implements Runnable{
 			this.doCarRegisterMessage((CarRegisterMessage)packet);
 		if(packet instanceof StationRegisterMessage)
 			this.doStationRegisterMessage((StationRegisterMessage)packet);
-		//if(packet instanceof CarMessage)
-			//this.doCarMessage((CarMessage)packet);
+		if(packet instanceof ServerStation)
+			this.doServerStation((ServerStation)packet);
 		//if(packet instanceof StationMessage)
 			//this.doStationMessage((StationMessage)packet);
 	}
@@ -79,7 +76,15 @@ public class ServerWorker implements Runnable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		ServerStation serverStation = new ServerStation(packet.getId(), packet.getLat(), packet.getLon(), packet.getPort(), packet.getIp(), packet.getCarsDocked(), null);
+		
+		ServerStation serverStation = new ServerStation(packet.getId(), 
+														packet.getLat(), 
+														packet.getLon(), 
+														packet.getPort(), 
+														packet.getIp(), 
+														0,
+														packet.getCarsDocked(), 
+														null);
 		this.state.getStations().put(serverStation.getId(), serverStation);
 		
 	}
@@ -95,29 +100,15 @@ public class ServerWorker implements Runnable{
 		ServerCar car = new ServerCar(packet.getId(), packet.getLat(), packet.getLon(), 0, 3600 * 10, null);
 		this.state.getCars().put(car.getId(), car);
 	}
-
-	private void doStationMessage(StationMessage packet) {
-		/*StationMessage st = this.state.getStations().get(packet.getId());
-		if(st != null){
-			st.setWaitingtime(packet.getWaitingtime());
-			st.setPassengers(packet.getPassengers());
+	
+	private void doServerStation(ServerStation ss){
+		try {
+			this.socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		else{
-			st = new StationMessage(packet.getId(), packet.getLat(), packet.getLon(), packet.getPassengers(), packet.getWaitingtime());
-			this.state.getStations().put(st.getId(), st);
-		}	*/	
+		this.state.getStations().put(ss.getId(), ss);
 	}
 
-	private void doCarMessage(CarMessage packet) {
-		/*CarMessage car = this.state.getCars().get(packet.getId());
-		if(car != null){
-			car.setBattery(packet.getBattery());
-			car.setLat(packet.getLat());
-			car.setLon(packet.getLon());
-		}
-		else{
-			car = new CarMessage(packet.getId(), packet.getLat(), packet.getLon(), packet.getBattery());
-			this.state.getCars().put(car.getId(), car);
-		}*/	
-	}
 }
