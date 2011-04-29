@@ -56,7 +56,7 @@ public class Server {
 			
 			System.out.println("->Central Server: I am running...");
 			
-			UpdateMonitor updater = new UpdateMonitor(state, "194.210.228.38", 5002);
+			UpdateMonitor updater = new UpdateMonitor(state, "194.210.228.87", 5002);
 			Thread u = new Thread(updater);
 			u.start();
 					
