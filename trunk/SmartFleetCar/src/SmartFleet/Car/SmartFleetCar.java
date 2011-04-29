@@ -42,11 +42,11 @@ public class SmartFleetCar extends MapActivity {
 	
 	private int id = 0;
 
-	private String realworldip = "192.210.228.82";
+	private String realworldip = "194.210.228.82";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
-	private String myip = "192.210.228.82";
+	private String myip = "194.210.228.82";
 	
 	private String serverip = "194.210.228.38";
 	private int serverport = 6799;
