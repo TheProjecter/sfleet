@@ -47,6 +47,15 @@ public class RWCar implements Serializable{
 		this.ip = ip;
 		this.port = port;
 	}
+	
+	public RWCar(int id, double battery, int lat, int log, int clock, Route route){
+		this.id = id;
+		this.battery = battery;
+		this.lat = lat;
+		this.log = log;
+		this.route = route;
+		this.clock = clock;
+	}
 
 	public int getId() {
 		return id;
