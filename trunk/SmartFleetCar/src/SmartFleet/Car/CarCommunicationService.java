@@ -9,7 +9,10 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import messages.CarGossipMsg;
+
 import structs.RWCar;
+import structs.ServerCar;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -87,6 +90,36 @@ private static SmartFleetCar MAIN_ACTIVITY;
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+					}
+				}
+				if(this.sfc.getMyCar().isNearStation()){
+					try {				
+						Socket s = new Socket(this.sfc.getServerip(), this.sfc.getServerport());
+
+						Log.d("smartfleet", "Comunicating with a car .");
+
+						this.sfc.getMyCar().incrementClock();
+
+						RWCar rwcar = new RWCar(this.sfc.getId(),
+								this.sfc.getMyCar().getBattery(),
+								this.sfc.getMyCar().getMyLocation().getLatitudeE6(),
+								this.sfc.getMyCar().getMyLocation().getLongitudeE6(),
+								this.sfc.getMyCar().getClock(),
+								this.sfc.getMyCar().getRoute());
+						
+						this.sfc.getMyCar().getCarsSeen().put(rwcar.getId(), rwcar);
+
+						CarGossipMsg cgm = new CarGossipMsg(this.sfc.getMyCar().getCarsSeen().values());
+						
+						this.sfc.getMyCar().getCarsSeen().clear();
+						
+						ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
+						oo.writeObject(cgm);
+
+
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
 			}			
