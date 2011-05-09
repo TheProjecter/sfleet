@@ -42,11 +42,11 @@ public class SmartFleetCar extends MapActivity {
 	
 	private int id = 0;
 
-	private String realworldip = "194.210.228.82";
+	private String realworldip = "169.254.8.254";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
-	private String myip = "194.210.228.82";
+	private String myip = "169.254.138.170";
 	
 	private String serverip = "194.210.228.38";
 	private int serverport = 6799;
@@ -198,21 +198,21 @@ public class SmartFleetCar extends MapActivity {
 			
 			this.id = cr.getId();
 			
-			Socket s2 = new Socket(cr.getStation().getIp(), cr.getStation().getPort());
-			CarAdvertisement ca = new CarAdvertisement();
-			RWCar car = new RWCar();
-			car.setId(this.id);
-			car.setIp(this.myip);
-			car.setPort(this.myport);
-			car.setBattery(this.myCar.getBattery());
-			ca.setCar(car);
-			
-			ObjectOutput oo2 = new ObjectOutputStream(s2.getOutputStream());
-			oo2.writeObject(ca);
-			
-			
-			Log.d("smartfleet", "Successfully logged at Real World Server. my port:" + s.getLocalPort());
-			
+			if(cr.getStation() != null){
+				Socket s2 = new Socket(cr.getStation().getIp(), cr.getStation().getPort());
+				CarAdvertisement ca = new CarAdvertisement();
+				RWCar car = new RWCar();
+				car.setId(this.id);
+				car.setIp(this.myip);
+				car.setPort(this.myport);
+				car.setBattery(this.myCar.getBattery());
+				ca.setCar(car);
+
+				ObjectOutput oo2 = new ObjectOutputStream(s2.getOutputStream());
+				oo2.writeObject(ca);
+
+				Log.d("smartfleet", "Successfully logged at Real World Server. my port:" + s.getLocalPort());
+			}
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -223,7 +223,7 @@ public class SmartFleetCar extends MapActivity {
 	
 	}
 	
-public void registerOnCentralServer(){
+	public void registerOnCentralServer(){
 		
 		try {
 			Socket s = new Socket(this.serverip, this.serverport);
