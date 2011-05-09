@@ -58,22 +58,22 @@ public class SmartFleetStation extends Activity {
     }; 
     
     private FlyingStation myStation;
-    
+   
 	private Flight currentflight;
-	
+
 	private int id = 0;
-	
-	private String realworldip = "194.210.228.87";
+
+	private String realworldip = "169.254.8.254";
 	private int realworldport = 6798;
-	
+
 	private int myport = 5001;
-	private String myip = "194.210.228.87";
+	private String myip = "169.254.8.254";
 	
-	private String serverip = "194.210.228.87";
+	private String serverip = "169.254.8.254";
 	private int serverport = 6799;
-	
+
 	private boolean booking = false;
-	
+
 	private HashMap<Integer, RWCar> carsDocked;
 	private HashMap<Integer, RWCar> carsToCharge;
 	
@@ -118,12 +118,12 @@ public class SmartFleetStation extends Activity {
         final Intent chargings = new Intent(this, ChargingService.class);
         startService(chargings);
         
-        UpdateCentralServerService.setMainActivity(this);
-        final Intent ucss = new Intent(this, UpdateCentralServerService.class);
-        startService(ucss);
+        //UpdateCentralServerService.setMainActivity(this);
+        //final Intent ucss = new Intent(this, UpdateCentralServerService.class);
+       // startService(ucss);
         
         this.registerOnRealWorld();
-        this.registerOnCentralServer();
+        //this.registerOnCentralServer();
 		
     }
     
