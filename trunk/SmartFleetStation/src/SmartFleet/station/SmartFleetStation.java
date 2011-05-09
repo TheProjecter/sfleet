@@ -62,13 +62,13 @@ public class SmartFleetStation extends Activity {
 	private Flight currentflight;
 
 	private int id = 0;
-
-	private String realworldip = "169.254.8.254";
+	
+	private String realworldip = "169.254.138.170";
 	private int realworldport = 6798;
 
 	private int myport = 5001;
-	private String myip = "169.254.8.254";
-	
+	private String myip = "169.254.138.170";
+
 	private String serverip = "169.254.8.254";
 	private int serverport = 6799;
 
