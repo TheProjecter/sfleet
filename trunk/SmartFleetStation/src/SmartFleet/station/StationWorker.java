@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.net.Socket;
 
 import messages.CarAdvertisement;
+import messages.Station;
 import structs.RWCar;
 import android.util.Log;
 
@@ -35,6 +36,10 @@ public class StationWorker implements Runnable{
 			
 		}
 		
+		public void doStationAdd(Station s){
+			this.sfs.getMyStation().getStations().add(s);
+		}
+		
 		public void run() {
 			
 			
@@ -59,6 +64,9 @@ public class StationWorker implements Runnable{
 			
 			if(packet instanceof CarAdvertisement){
 				doCarAdvertisement((CarAdvertisement)packet);
+			}
+			else if(packet instanceof Station){
+				doStationAdd((Station)packet);
 			}
 		
 			
