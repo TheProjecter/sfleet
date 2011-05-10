@@ -42,16 +42,16 @@ public class SmartFleetCar extends MapActivity {
 	
 	private int id = 0;
 
-	private String realworldip = "194.210.228.191";
+	private String realworldip = "194.210.228.108";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
-	private String myip = "194.210.228.191";
-	
-	private String serverip = "194.210.228.38";
-	private int serverport = 6799;
-	
+	private String myip = "194.210.228.108";
 
+	private String serverip = "194.210.228.108";
+	private int serverport = 6799;
+
+	
 	// Need handler for callbacks to the UI thread
 	final Handler mHandler = new Handler();
 	// Create runnable for posting
@@ -107,7 +107,7 @@ public class SmartFleetCar extends MapActivity {
 		startService(carCommunicationService);
 
 		this.registerOnRealWorld();
-		//this.registerOnCentralServer();
+		this.registerOnCentralServer();
 		
 	}
 
@@ -124,7 +124,7 @@ public class SmartFleetCar extends MapActivity {
 		this.batterytext.setText((int) this.myCar.getPercentageBattery() + "%");
 		this.heightext.setText((int) this.myCar.getHeight() + "m");
 	}
-
+	
 	public MapView getMapView() {
 		return mapView;
 	}
@@ -230,7 +230,7 @@ public class SmartFleetCar extends MapActivity {
 			CarRegisterMessage csm = new CarRegisterMessage(this.id, 
 														this.myCar.getMyLocation().getLatitudeE6(),
 														this.myCar.getMyLocation().getLongitudeE6(),
-														this.myCar.getBattery());
+														this.myCar.getRoute());
 			
 			
 			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
