@@ -2,6 +2,8 @@ package messages;
 
 import java.io.Serializable;
 
+import structs.Route;
+
 public class CarRegisterMessage implements Serializable {
 
 	/**
@@ -14,12 +16,15 @@ public class CarRegisterMessage implements Serializable {
 	private int lat;
 	
 	private int lon;
+	
+	private Route route;
 
-	public CarRegisterMessage(int id, int lat, int lon, double battery){
+	public CarRegisterMessage(int id, int lat, int lon, Route route){
 		
 		this.id = id;
 		this.lat = lat;
 		this.lon = lon;
+		this.route = route;
 		
 	}
 
@@ -45,5 +50,13 @@ public class CarRegisterMessage implements Serializable {
 
 	public void setLon(int lon) {
 		this.lon = lon;
+	}
+
+	public void setRoute(Route route) {
+		this.route = route;
+	}
+
+	public Route getRoute() {
+		return route;
 	}
 }
