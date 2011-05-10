@@ -282,7 +282,7 @@ public class FlyingCar extends TimerTask {
 				if (logd < this.route.getRoute().get(0).getLon())
 					logd = this.route.getRoute().get(0).getLon();
 
-			this.battery -= 10;
+			this.battery -= 500;
 			if(this.battery < 0)
 				this.battery = 0;
 

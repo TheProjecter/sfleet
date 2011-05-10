@@ -1,8 +1,6 @@
 package SmartFleet.Car;
 
 import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -12,7 +10,6 @@ import java.util.TimerTask;
 import messages.CarGossipMsg;
 
 import structs.RWCar;
-import structs.ServerCar;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -72,7 +69,7 @@ private static SmartFleetCar MAIN_ACTIVITY;
 						try {				
 							Socket s = new Socket(car.getIp(), car.getPort());
 							
-							Log.d("smartfleet", "Comunicating with a car .");
+							Log.d("smartfleet", "Comunicating station.");
 							
 							this.sfc.getMyCar().incrementClock();
 							
@@ -96,7 +93,7 @@ private static SmartFleetCar MAIN_ACTIVITY;
 					try {				
 						Socket s = new Socket(this.sfc.getServerip(), this.sfc.getServerport());
 
-						Log.d("smartfleet", "Comunicating with a car .");
+						Log.d("smartfleet", "Comunicating with the station.");
 
 						this.sfc.getMyCar().incrementClock();
 
