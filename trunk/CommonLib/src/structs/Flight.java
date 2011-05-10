@@ -17,7 +17,7 @@ public class Flight implements Serializable{
 	
 	public Flight(){
 		this.partyname = "";
-		this.npassengers = 1;
+		this.npassengers = 0;
 		this.destination = null;
 		this.lat = 0;
 		this.lon = 0;
