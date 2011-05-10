@@ -1,6 +1,7 @@
 package structs;
 
 import java.io.Serializable;
+import java.util.Calendar;
 
 public class ServerCar implements Serializable{
 
@@ -21,13 +22,19 @@ public class ServerCar implements Serializable{
 	
 	private Route route;
 	
-	public ServerCar(int id, int lat, int lon, int clock, double battery, Route route){
+	private long informationTime;
+	
+	private long timeToUpdate;
+	
+	public ServerCar(int id, int lat, int lon, int clock, double battery, Route route, long informationTime, long timeToUpdate){
 		this.id = id;
 		this.lat = lat;
 		this.lon = lon;
 		this.clock = clock;
 		this.battery = battery;
 		this.route = route;
+		this.informationTime = informationTime;
+		this.timeToUpdate = timeToUpdate;
 	}
 
 	public int getId() {
@@ -76,5 +83,21 @@ public class ServerCar implements Serializable{
 
 	public void setRoute(Route route) {
 		this.route = route;
+	}
+
+	public void setInformationTime(long informationTime) {
+		this.informationTime = informationTime;
+	}
+
+	public long getInformationTime() {
+		return informationTime;
+	}
+
+	public void setTimeToUpdate(long timeToUpdate) {
+		this.timeToUpdate = timeToUpdate;
+	}
+
+	public long getTimeToUpdate() {
+		return timeToUpdate;
 	}
 }
