@@ -221,13 +221,13 @@ public class RWWorker implements Runnable{
 			
 	}
 	
-	public double distanceBetween(int lat1, int lon1, int lat2, int lon2){
+	public double distanceBetween(double lat1, double lon1, double lat2, double lon2){
 		
-		lat1 /= 0.000009;
-		lon1 /= 0.000011;
+		lat1 /= (0.000009 * 1E6);
+		lon1 /= (0.000011 * 1E6);
 		
-		lat2 /= 0.000009;
-		lon2 /= 0.000011;
+		lat2 /= (0.000009 * 1E6);
+		lon2 /= (0.000011 * 1E6);
 		
 		double dist = Math.sqrt(Math.pow((lat1 - lat2), 2) + Math.pow((lon1 - lon2), 2));
 		
