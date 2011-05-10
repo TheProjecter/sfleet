@@ -56,8 +56,9 @@ public class ServerWorker implements Runnable {
 						lat = f.getLat();
 						lon = f.getLon();
 					}
-					int timeToUpdate = (int)distance/10;
-					serverCar.setTimeToUpdate((timeToUpdate * 1000) + 10000);
+					long timeToUpdate = Calendar.getInstance().getTimeInMillis();
+					timeToUpdate += (distance * 100); 
+					serverCar.setTimeToUpdate(timeToUpdate + 10000);
 					if(this.state.getMissingcars().containsKey(serverCar.getId()))
 							this.state.getMissingcars().remove(serverCar.getId());
 				}
@@ -75,7 +76,7 @@ public class ServerWorker implements Runnable {
 		}
 		System.out.println("-->Logged Car " + packet.getId() + " to the server.");
 		long time = Calendar.getInstance().getTimeInMillis();
-		ServerCar car = new ServerCar(packet.getId(), packet.getLat(), packet.getLon(), 0, 3600 * 10, null, time, 0);
+		ServerCar car = new ServerCar(packet.getId(), packet.getLat(), packet.getLon(), 0, 3600 * 10, packet.getRoute(), time, 0);
 		this.state.getCars().put(car.getId(), car);
 	}
 	
@@ -128,13 +129,13 @@ public class ServerWorker implements Runnable {
 		
 	}
 	
-	public double distanceBetween(int lat1, int lon1, int lat2, int lon2){
+	public double distanceBetween(double lat1, double lon1, double lat2, double lon2){
 		
-		lat1 /= 0.000009;
-		lon1 /= 0.000011;
+		lat1 /= (0.000009 * 1E6);
+		lon1 /= (0.000011 * 1E6);
 		
-		lat2 /= 0.000009;
-		lon2 /= 0.000011;
+		lat2 /= (0.000009 * 1E6);
+		lon2 /= (0.000011 * 1E6);
 		
 		double dist = Math.sqrt(Math.pow((lat1 - lat2), 2) + Math.pow((lon1 - lon2), 2));
 		
