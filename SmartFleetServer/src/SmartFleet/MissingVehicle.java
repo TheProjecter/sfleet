@@ -21,11 +21,11 @@ public class MissingVehicle implements Runnable {
 			@Override
 			public void run(){
 				for(ServerCar sc : state.getCars().values()){
-					if(sc.getRoute() != null){
+					if(!sc.getRoute().getRoute().isEmpty()){
 						long time = Calendar.getInstance().getTimeInMillis();
 						if(time > sc.getTimeToUpdate()){
 							state.getMissingcars().put(sc.getId(), sc);
-							System.out.println("Car " + sc.getId() + " is missing!");
+							System.out.println("Car: " + sc.getId() + " is missing.");
 						}
 					}
 				}
