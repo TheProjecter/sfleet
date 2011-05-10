@@ -23,7 +23,7 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 
 public class SmartFleetMonitor extends MapActivity {
-	
+
 	private MapView mapView;
 	private MapController mapc;
 	
@@ -135,8 +135,12 @@ public class SmartFleetMonitor extends MapActivity {
     	builder.setCancelable(true);
     	builder.setTitle("CarID: " + s.getId());
     	builder.setInverseBackgroundForced(false);
-    	builder.setMessage("Latitude: " + s.getLat()/1E6 + "\n" +
-				   		   "Longitude: " + s.getLon()/1E6 + "\n\n");// +
+    	int passengers = 0;
+    	for(Flight f : s.getRoute().getRoute()){
+    		passengers += f.getNpassengers();
+    	}
+    	builder.setMessage("Number of Passenger: " + passengers + "\n\n" +
+				   		   "Battery: " + (int)s.getBattery() + "\n\n");// +
 				   		  // "Battery: " + (int)s.getPercentageBattery() + "%\n");
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
