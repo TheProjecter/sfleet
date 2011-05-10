@@ -2,7 +2,6 @@ package SmartFleet;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,7 +24,6 @@ public class UpdateMonitor implements Runnable {
 	}
 	
 	public void run() {
-		// TODO Auto-generated method stub
 		this.timer.schedule(new TimerTask() {
 			
 			@Override
@@ -36,7 +34,6 @@ public class UpdateMonitor implements Runnable {
 					ObjectOutputStream o = new ObjectOutputStream(s.getOutputStream());
 					o.writeObject(snapshot);					
 				}catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();	
 				}
 			}

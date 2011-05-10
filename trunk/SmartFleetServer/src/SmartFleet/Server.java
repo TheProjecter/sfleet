@@ -56,9 +56,13 @@ public class Server {
 			
 			System.out.println("->Central Server: I am running...");
 			
-			UpdateMonitor updater = new UpdateMonitor(state, "194.210.228.87", 5002);
+			UpdateMonitor updater = new UpdateMonitor(state, "194.210.228.108", 5002);
 			Thread u = new Thread(updater);
 			u.start();
+			
+			MissingVehicle missing = new MissingVehicle(state);
+			Thread m = new Thread(missing);
+			m.start();
 					
 			while(true){
 				Socket s = server.accept();
