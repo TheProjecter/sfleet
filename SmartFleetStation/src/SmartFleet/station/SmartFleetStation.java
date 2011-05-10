@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -22,6 +23,7 @@ import javax.xml.parsers.SAXParserFactory;
 import messages.ChargeMessage;
 import messages.LoginResponse;
 import messages.RouteSending;
+import messages.Station;
 import messages.StationList;
 import messages.StationLogin;
 import messages.StationRegisterMessage;
@@ -33,7 +35,10 @@ import structs.Flight;
 import structs.RWCar;
 import structs.Route;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -56,6 +61,11 @@ public class SmartFleetStation extends Activity {
             updateUI(); 
         } 
     }; 
+    final Runnable mCallPassengers = new Runnable() { 
+        public void run() { 
+            callPassengers(); 
+        } 
+    }; 
     
     private FlyingStation myStation;
    
@@ -63,19 +73,23 @@ public class SmartFleetStation extends Activity {
 
 	private int id = 0;
 	
-	private String realworldip = "169.254.138.170";
+	private String realworldip = "194.210.228.191";
 	private int realworldport = 6798;
 
 	private int myport = 5001;
-	private String myip = "169.254.138.170";
+	private String myip = "194.210.228.191";
 
 	private String serverip = "169.254.8.254";
 	private int serverport = 6799;
 
 	private boolean booking = false;
-
+	
+	private LinkedList<RouteSending> rslist = new LinkedList<RouteSending>();
+	private LinkedList<RWCar> clist = new LinkedList<RWCar>();
+	
 	private HashMap<Integer, RWCar> carsDocked;
 	private HashMap<Integer, RWCar> carsToCharge;
+	
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,28 +97,18 @@ public class SmartFleetStation extends Activity {
      
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
-        GeoPoint IST = new GeoPoint(38736830, -9138181);
-       // GeoPoint TP = new GeoPoint(38736320, -9301917);
-       // GeoPoint AirPort = new GeoPoint(38765775, -9133007);
-        
-        this.myStation = new FlyingStation(IST);
+        GeoPoint me = new GeoPoint(38736830, -9138181);        
+        this.myStation = new FlyingStation(me);
         this.setCarsDocked(new HashMap<Integer, RWCar>());
         this.setCarsToCharge(new HashMap<Integer, RWCar>());
-        
-        this.myStation.getDestinations().put("IST", IST);
-       // this.myStation.getDestinations().put("Tagus", TP);
-       // this.myStation.getDestinations().put("Airport", AirPort);
+       
+        Station mes = new Station(me.getLatitudeE6(), me.getLongitudeE6());
+        this.myStation.getStations().add(mes);
+  
         
         this.setContentView(R.layout.main);
         this.mHandler.post(mUpdateResults);
         
-      //  LoginService.setMainActivity(this);
-      //  final Intent smartFleetStationService = new Intent(this, LoginService.class);
-		//startService(smartFleetStationService);
-        
-	//	AddCarService.setMainActivity(this);
-     //   final Intent addCarService = new Intent(this, AddCarService.class);
-	//	startService(addCarService);
 		
         StationDispatchService.setMainActivity(this, this.myport);
         final Intent dispatcher = new Intent(this, StationDispatchService.class);
@@ -241,6 +245,10 @@ public class SmartFleetStation extends Activity {
     }
     
     public void updateUI(){
+    	
+    	if(this.booking)
+    		return;
+    	
     	ListView lv = (ListView)this.findViewById(R.id.WaitingList);
     	ArrayList<String> a = new ArrayList<String>();
     	for(Flight f : this.myStation.getFlightQueue()){
@@ -286,7 +294,6 @@ public class SmartFleetStation extends Activity {
 	
 	}
 
-
     public void registerOnCentralServer(){
 
     	try {
@@ -301,10 +308,11 @@ public class SmartFleetStation extends Activity {
     		ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
     		oo.writeObject(ssm);
     		ObjectInput oi = new ObjectInputStream(s.getInputStream());
-			Object packet = oi.readObject();
+    		StationList sl = (StationList)oi.readObject();
 			s.close();			
 			
-			this.myStation.setStations(((StationList)packet).getStations());
+			for(Station st : sl.getStations())
+				this.myStation.getStations().add(st);
 			
     	} catch (ClassNotFoundException e) {
     		// TODO Auto-generated catch block
@@ -320,48 +328,212 @@ public class SmartFleetStation extends Activity {
 
     }
 
+    public double findDistance(double lat1, double lon1, double lat2, double lon2){
+    	    	
+    	lat1 /= (0.000009 * 1E6);
+		lon1 /= (0.000011 * 1E6);
+		
+		lat2 /= (0.000009 * 1E6);
+		lon2 /= (0.000011 * 1E6);
+    	
+    	double dist = Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lon1 - lon2, 2));
+		return dist;
+    }
+    
+    public boolean isRoutePossible(Route r){
+    	
+    	int npeople = 0;
+    	double distance = 0;
+    	Flight prev = null;
+    	
+    	for(Flight f : r.getRoute()){
+    		npeople += f.getNpassengers();
+    		if(prev == null){
+    			distance += this.findDistance(this.getMylocation().getLatitudeE6(), 
+    										  this.getMylocation().getLongitudeE6(), 
+    										  f.getLat(), f.getLon());
+    			prev = f;
+    		}else{
+    			distance += this.findDistance(prev.getLat(), 
+						  					  prev.getLon(), 
+						  					  f.getLat(), f.getLon());
+    			prev = f;
+    		}
+    	}
+    	
+    	if(npeople <= 4 && distance <= 36000)
+    		return true;
+    	else
+    		return false;
+    }
+
+    public double getBatteryForRoute(Route r){
+    	
+    	double batnec = 0;
+    	Flight prev = null;
+    	
+    	for(Flight f : r.getRoute()){
+    		
+    		if(prev == null){
+    			batnec += this.findDistance(this.getMylocation().getLatitudeE6(), 
+    										this.getMylocation().getLongitudeE6(), 
+    										f.getLat(), f.getLon());
+    			prev = f;
+    		}else{
+    			batnec += this.findDistance(prev.getLat(), 
+    										prev.getLon(), 
+    										f.getLat(), f.getLon());
+    			prev = f;
+    		}
+    		
+    		batnec += 200;
+    	}
+
+    	return batnec;
+    }
+    
 	public void dispatchRoute(){
-		//TODO FALTA OLHAR PARA ESTA MERDA COMO DEVE SER
+		
+		if(this.booking)
+			return;
 		
 		if(this.carsDocked.isEmpty() || this.myStation.getFlightQueue().isEmpty())
 			return;
 		
 		RWCar car = null;
 		for(RWCar c : this.carsDocked.values()){
-			car = c;
-			break;
+			if(car == null || car.getBattery() < c.getBattery())
+				car = c;
 		}
-		this.carsDocked.remove(car.getId());
 		
 		Route r = new Route();
-		r.getRoute().add(this.myStation.getFlightQueue().get(0));
-		Flight f = this.myStation.getFlightQueue().remove(0);
+		Flight f = this.myStation.getFlightQueue().get(0);
+		r.getRoute().add(f);
 		this.myStation.getWaitingTime().add(Calendar.getInstance().getTimeInMillis() - f.getTimeof());
-		Flight dest = new Flight();
-		dest.setLat(this.getMylocation().getLatitudeE6());
-		dest.setLon(this.getMylocation().getLongitudeE6());
-		r.getRoute().add(dest);
+	
 		
-		RouteSending rs = new RouteSending(r);
+		//ACHA A ESTA‚åO MAIS PROXIMA DO ULTIMO DESTINO
+		Station dest = null;
+		double dist = 0;
 		
-		Socket s;
-		try {
-			Log.d("Smartfleet", "Sending route");
-			s = new Socket(car.getIp(), car.getPort());
-			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
-			oo.writeObject(rs);
-			//s.close();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for(Station s : this.myStation.getStations()){
+			double newdist = this.findDistance(s.getLat(), s.getLon(), r.getRoute().getLast().getLat(), r.getRoute().getLast().getLon());
+			if(dest == null || dist > newdist){
+				dest = s;
+				dist = newdist;
+			}
 		}
 		
-		this.mHandler.post(this.mUpdateResults);
+		
+		Flight destiny = new Flight();
+		destiny.setLat(dest.getLat());
+		destiny.setLon(dest.getLon());
+		r.getRoute().add(destiny);
+		
+		//Verifica se o voo Ž possivel sen‹o cancela o flight
+		if(this.isRoutePossible(r) && this.getBatteryForRoute(r) <= car.getBattery()){
+			this.carsDocked.remove(car.getId());
+			this.myStation.getFlightQueue().remove(0);
+		}else if (!this.isRoutePossible(r)){
+			this.myStation.getFlightQueue().remove(0);
+			this.mHandler.post(this.mUpdateResults);
+			return;
+		}else
+			return;
+		
+		//TENTA POR MAIS QUALUQER COISA NA VIAGEM
+		
+		for(Flight ftry : this.myStation.getFlightQueue()){
+			
+			Route newr = r.clone();
+			newr.getRoute().removeLast();
+			newr.getRoute().add(ftry);
+			
+			Station last = null;
+			double distince = 0;
+			
+			for(Station s : this.myStation.getStations()){
+				double newdist = this.findDistance(s.getLat(), s.getLon(), newr.getRoute().getLast().getLat(), newr.getRoute().getLast().getLon());
+				if(last == null || distince > newdist){
+					last = s;
+					distince = newdist;
+				}
+			}
+			
+			Flight destinys = new Flight();
+			destinys.setLat(last.getLat());
+			destinys.setLon(last.getLon());
+			newr.getRoute().add(destinys);
+			
+			if(this.isRoutePossible(newr) && this.getBatteryForRoute(newr) <= car.getBattery()){
+				r = newr;
+			}
+		}
+		
+		for(Flight ftoRem : r.getRoute()){
+			if(this.myStation.getFlightQueue().contains(ftoRem))
+				this.myStation.getFlightQueue().remove(ftoRem);
+		}
 		
 		
+		
+		// POE NA LISTA PARA SEREM CHAMADOS
+		this.rslist.add(new RouteSending(r));
+		this.clist.add(car);
+		
+		this.mHandler.post(this.mUpdateResults);	
+		this.mHandler.post(this.mCallPassengers);
+	}
+	
+	public void callPassengers(){
+
+		//if(this.clist.isEmpty() || this.rslist.isEmpty())
+		//	return;
+		
+		final RWCar car = this.clist.removeFirst();
+		final RouteSending rs = this.rslist.removeFirst();
+		
+		String partiesToCall = "Calling Parties to Car " + car.getId() + ":\n";
+		
+		for(Flight f : rs.getRoute().getRoute()){
+			if(f.getPartyname() != ""){
+				partiesToCall += f.getPartyname();
+				partiesToCall += "\n";
+			}
+		}
+		
+		// CHAMA PASSAGEIROS PARA O CARRO	
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(partiesToCall);
+		builder.setCancelable(false);       
+		OnClickListener listen = new DialogInterface.OnClickListener() {
+	           public void onClick(DialogInterface dialog, int id) {
+	        	   
+	        	   RWCar cars = car;
+	        	   RouteSending rss = rs;
+	        	   
+	        	   Socket s;
+	        	   try {
+	        		   Log.d("Smartfleet", "Sending route");
+	        		   s = new Socket(cars.getIp(), cars.getPort());
+	        		   ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
+	        		   oo.writeObject(rss);
+	        		   //s.close();
+	        	   } catch (UnknownHostException e) {
+	        		   // TODO Auto-generated catch block
+	        		   e.printStackTrace();
+	        	   } catch (IOException e) {
+	        		   // TODO Auto-generated catch block
+	        		   e.printStackTrace();
+	        	   } 
+	        	   dialog.cancel();
+	           }
+	     };
+		
+		builder.setPositiveButton("Ok", listen);
+		
+		AlertDialog alert = builder.create();
+		alert.show();		
 	}
 	
 	public void executeAndUpdateCharge(){
