@@ -32,7 +32,8 @@ public class SmartFleetMonitor extends MapActivity {
 	private Map<Integer, ServerStation> stationlist;
 	private Map<Integer, ServerCar> carlist;
 	
-	private int myport = 5002;
+	private String serverip = "194.210.228.37";
+	private int serverport = 6799;
 	
 	// Need handler for callbacks to the UI thread
 	final Handler mHandler = new Handler();
@@ -67,8 +68,8 @@ public class SmartFleetMonitor extends MapActivity {
 		this.mapc.animateTo(new GeoPoint(38736830, -9138181));
         this.mapView.getOverlays().add(new DrawOverlay(this));
         
-        MonitorListener.setMainActivity(this, this.myport);
-	    final Intent monitorListenerService = new Intent(this, MonitorListener.class);
+        UpdateMonitor.setMainActivity(this, this.serverport, this.serverip);
+	    final Intent monitorListenerService = new Intent(this, UpdateMonitor.class);
 		startService(monitorListenerService);
     }
 
@@ -83,7 +84,6 @@ public class SmartFleetMonitor extends MapActivity {
     		numberwaiting += f.getNpassengers();
     	}
     		
-    	
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setCancelable(true);
     	builder.setTitle("StationID: " + s.getId());
