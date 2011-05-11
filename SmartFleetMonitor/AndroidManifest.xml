@@ -20,7 +20,7 @@
             </intent-filter>
         </activity>
         
-        <service android:name="MonitorListener"/>
+        <service android:name="UpdateMonitor"/>
 
     </application>
 </manifest>
