@@ -73,11 +73,11 @@ public class SmartFleetStation extends Activity {
 
 	private int id = 0;
 	
-	private String realworldip = "194.210.228.108";
+	private String realworldip = "194.210.229.17";
 	private int realworldport = 6798;
 
 	private int myport = 5001;
-	private String myip = "194.210.228.108";
+	private String myip = "194.210.229.17";
 
 	private String serverip = "194.210.228.108";
 	private int serverport = 6799;
@@ -97,7 +97,12 @@ public class SmartFleetStation extends Activity {
      
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
-        GeoPoint me = new GeoPoint(38736830, -9138181);        
+        GeoPoint me = new GeoPoint(38736830, -9138181); 
+        
+        //GeoPoint IST = new GeoPoint(38736830, -9138181);
+		//GeoPoint TP = new GeoPoint(38736320, -9301917);
+		GeoPoint AirPort = new GeoPoint(38765775, -9133007);
+        
         this.myStation = new FlyingStation(me);
         this.setCarsDocked(new HashMap<Integer, RWCar>());
         this.setCarsToCharge(new HashMap<Integer, RWCar>());
@@ -105,6 +110,9 @@ public class SmartFleetStation extends Activity {
         Station mes = new Station(me.getLatitudeE6(), me.getLongitudeE6());
         this.myStation.getStations().add(mes);
   
+        Station aitrport = new Station(AirPort.getLatitudeE6(), AirPort.getLongitudeE6());
+        this.myStation.getStations().add(aitrport);
+        
         
         this.setContentView(R.layout.main);
         this.mHandler.post(mUpdateResults);
@@ -122,12 +130,12 @@ public class SmartFleetStation extends Activity {
         final Intent chargings = new Intent(this, ChargingService.class);
         startService(chargings);
         
-        UpdateCentralServerService.setMainActivity(this);
-        final Intent ucss = new Intent(this, UpdateCentralServerService.class);
-        startService(ucss);
+        //UpdateCentralServerService.setMainActivity(this);
+        //final Intent ucss = new Intent(this, UpdateCentralServerService.class);
+        //startService(ucss);
       
         this.registerOnRealWorld();
-        this.registerOnCentralServer();
+        //this.registerOnCentralServer();
 		
     }
     
