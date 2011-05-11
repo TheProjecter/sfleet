@@ -6,7 +6,6 @@ import java.net.Socket;
 
 
 
-
 public class Server {
 	
 	public static void main(String[] args){
@@ -55,10 +54,6 @@ public class Server {
 			server = new ServerSocket(6799);
 			
 			System.out.println("->Central Server: I am running...");
-			
-			UpdateMonitor updater = new UpdateMonitor(state, "194.210.228.108", 5002);
-			Thread u = new Thread(updater);
-			u.start();
 			
 			MissingVehicle missing = new MissingVehicle(state);
 			Thread m = new Thread(missing);
