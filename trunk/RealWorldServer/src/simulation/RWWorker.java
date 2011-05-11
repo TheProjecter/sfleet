@@ -110,15 +110,16 @@ public class RWWorker implements Runnable{
 		if(!this.state.getCarSubscribers().containsKey(car.getId()))
 			this.state.getCarSubscribers().put(car.getId(), car);
 		
+		System.out.println("-->Subscribed Car " + car.getId() + " to receive updates.");
+		System.out.println("--->IP: " + car.getIp());
+		System.out.println("--->port: " + car.getPort());
+		
 	}
 	
 	public void doCarUpdate(CarUpdate cu){
 		RWCar c = this.state.getCarSubscribers().get(cu.getId());
 		c.setLat(cu.getLat());
 		c.setLog(cu.getLog());
-		System.out.println("-->Updated Car " + c.getId());
-		System.out.println("--->Latitude " + c.getLat());
-		System.out.println("--->Longitude " + c.getLog());
 		
 		try{
 			//TODO RESPOSTA AO UPDATE
@@ -182,6 +183,11 @@ public class RWWorker implements Runnable{
 		
 		if(this.state.getCarSubscribers().containsKey(car.getId()))
 			this.state.getCarSubscribers().remove(car.getId());
+	
+		System.out.println("-->Unsubscribed Car " + car.getId() + " to stop receiving updates.");
+		System.out.println("--->IP: " + car.getIp());
+		System.out.println("--->port: " + car.getPort());
+		
 	}
 	
 	@Override
