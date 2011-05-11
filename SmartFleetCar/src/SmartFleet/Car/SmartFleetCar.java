@@ -7,6 +7,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Calendar;
 
 import messages.CarAdvertisement;
 import messages.CarLogin;
@@ -17,6 +18,7 @@ import messages.CarUnsubscribe;
 import messages.CarUpdate;
 import messages.CarUpdateResponse;
 import messages.LoginResponse;
+import structs.Flight;
 import structs.RWCar;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -37,16 +40,18 @@ public class SmartFleetCar extends MapActivity {
 
 	private TextView batterytext;
 	private TextView heightext;
+	private TextView timestoptext;
+	private TextView partynamestext;
 
 	private FlyingCar myCar;
 	
 	private int id = 0;
 
-	private String realworldip = "194.210.228.108";
+	private String realworldip = "194.210.229.17";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
-	private String myip = "194.210.228.108";
+	private String myip = "194.210.229.17";
 
 	private String serverip = "194.210.228.108";
 	private int serverport = 6799;
@@ -61,7 +66,14 @@ public class SmartFleetCar extends MapActivity {
 		}
 	};
 
+	final Runnable mPassengersLeave = new Runnable() {
+		public void run() {
+			notifyPassengertoLeave();
+		}
+	};
+	
 	/** Called when the activity is first created. */
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -73,6 +85,8 @@ public class SmartFleetCar extends MapActivity {
 
 		this.batterytext = (TextView) findViewById(R.id.battery);
 		this.heightext = (TextView) findViewById(R.id.height);
+		this.timestoptext = (TextView) findViewById(R.id.expectedtime);
+		this.partynamestext = (TextView) findViewById(R.id.partynames);
 
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -87,7 +101,7 @@ public class SmartFleetCar extends MapActivity {
 		
 		RouteOverlay ro = new RouteOverlay(IST, 255);
 		this.myCar = new FlyingCar(this.mc, ro, this.mHandler,
-				this.mUpdateResults);
+				this.mUpdateResults, this.mPassengersLeave);
 		this.myCar.setLocation(IST);
 		
 		this.mapView.getOverlays().add(ro);
@@ -102,27 +116,62 @@ public class SmartFleetCar extends MapActivity {
 	    final Intent CarUpdateService = new Intent(this, CarUpdateService.class);
 		startService(CarUpdateService);
 		
-		CarCommunicationService.setMainActivity(this);
-	    final Intent carCommunicationService = new Intent(this, CarCommunicationService.class);
-		startService(carCommunicationService);
+		//CarCommunicationService.setMainActivity(this);
+	    //final Intent carCommunicationService = new Intent(this, CarCommunicationService.class);
+		//startService(carCommunicationService);
 
 		this.registerOnRealWorld();
-		this.registerOnCentralServer();
+		//this.registerOnCentralServer();
 		
 	}
 
-	// TODO: RUIQ IDEIAS??
 	@Override
 	protected boolean isRouteDisplayed() {
 
 		return false;
 	}
 
-
 	public void updateUI() {
 		// TODO: RUIQ este cast (int) e necessario?
 		this.batterytext.setText((int) this.myCar.getPercentageBattery() + "%");
 		this.heightext.setText((int) this.myCar.getHeight() + "m");
+		
+		if(!this.myCar.getRoute().getRoute().isEmpty()){
+			double distance = this.distanceBetween(this.myCar.getMyLocation().getLatitudeE6(),
+					this.myCar.getMyLocation().getLongitudeE6(), 
+					this.myCar.getRoute().getRoute().getFirst().getLat(),
+					this.myCar.getRoute().getRoute().getFirst().getLon());
+
+			double times = distance / this.myCar.getVelocity();
+
+			int time_h = (int)(times/3600);
+			int time_m = (int)((times%3600)/60);
+			int time_s = (int)(times%60.0);
+
+			String time = "   " + time_h + "h:" + time_m + "m:" + time_s + "s";
+			this.timestoptext.setText("Time to next stop:" + time);
+		}
+		else
+			this.timestoptext.setText("Time to next stop:");
+		
+		String partynames = "Parties:\n";
+		for(Flight f : this.myCar.getRoute().getRoute()){
+			if(!f.getPartyname().equals("")){
+				partynames += f.getPartyname() + "\n";
+			}
+		}
+		this.partynamestext.setText(partynames);
+	}
+	
+	public void notifyPassengertoLeave(){
+		
+		Flight f = this.myCar.getRoute().getRoute().removeFirst();
+		
+		if(!f.getPartyname().equals("")){
+			String s = "The party " + f.getPartyname() + " has arrived to the destination.";
+			Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+		}
+		
 	}
 	
 	public MapView getMapView() {
@@ -398,4 +447,18 @@ public class SmartFleetCar extends MapActivity {
 	public void setServerport(int serverport) {
 		this.serverport = serverport;
 	}
+
+	public double distanceBetween(double lat1, double lon1, double lat2, double lon2){
+		
+		lat1 /= (0.000009 * 1E6);
+		lon1 /= (0.000011 * 1E6);
+		
+		lat2 /= (0.000009 * 1E6);
+		lon2 /= (0.000011 * 1E6);
+		
+		double dist = Math.sqrt(Math.pow((lat1 - lat2), 2) + Math.pow((lon1 - lon2), 2));
+		
+		return dist;
+	}
+	
 }
