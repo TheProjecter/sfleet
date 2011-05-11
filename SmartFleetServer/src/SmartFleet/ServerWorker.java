@@ -1,5 +1,6 @@
 package SmartFleet;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
@@ -8,7 +9,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 
 import messages.CarGossipMsg;
 import messages.CarRegisterMessage;
@@ -53,19 +53,22 @@ public class ServerWorker implements Runnable {
 					double distance = 0;
 					int lat = car.getLat();
 					int lon = car.getLog();
-					for(Flight f : car.getRoute().getRoute()){
-						distance +=	this.distanceBetween(f.getLat(), f.getLon(), lat, lon);
+					for (Flight f : car.getRoute().getRoute()) {
+						distance += this.distanceBetween(f.getLat(), f.getLon(), lat, lon);
 						lat = f.getLat();
 						lon = f.getLon();
 					}
 					long timeToUpdate = Calendar.getInstance().getTimeInMillis();
-					timeToUpdate += (distance * 100); 
+					timeToUpdate += (distance * 100);
 					serverCar.setTimeToUpdate(timeToUpdate + 10000);
-					if(this.state.getMissingcars().containsKey(serverCar.getId()))
+					if (this.state.getMissingcars().containsKey(serverCar.getId()))
 						this.state.getMissingcars().remove(serverCar.getId());
 				}
 			}
 		}
+		
+		save();
+		
 	}
 	
 	private void doCarRegisterMessage(CarRegisterMessage packet) {
@@ -73,13 +76,28 @@ public class ServerWorker implements Runnable {
 		try {
 			this.socket.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("-->Logged Car " + packet.getId() + " to the server.");
 		long time = Calendar.getInstance().getTimeInMillis();
 		ServerCar car = new ServerCar(packet.getId(), packet.getLat(), packet.getLon(), 0, 3600 * 10, packet.getRoute(), time, 0);
 		this.state.getCars().put(car.getId(), car);
+		
+		save();
+		
+	}
+	
+	private void doMonitorUpdate() {
+
+		Snapshot snapshot = new Snapshot(this.state.getStations(), this.state.getCars());
+		ObjectOutputStream o;
+		try {
+			o = new ObjectOutputStream(this.socket.getOutputStream());
+			o.writeObject(snapshot);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void doServerStation(ServerStation ss) {
@@ -91,6 +109,9 @@ public class ServerWorker implements Runnable {
 			e.printStackTrace();
 		}
 		this.state.getStations().put(ss.getId(), ss);
+		
+		save();
+		
 	}
 	
 	private void doStationRegisterMessage(StationRegisterMessage packet) {
@@ -129,24 +150,12 @@ public class ServerWorker implements Runnable {
 		ServerStation serverStation = new ServerStation(packet.getId(), packet.getLat(), packet.getLon(), packet.getPort(), packet.getIp(), 0, packet.getCarsDocked(), null);
 		this.state.getStations().put(serverStation.getId(), serverStation);
 		
-	}
-	
-
-	private void doMonitorUpdate() {
-		Snapshot snapshot = new Snapshot(state.getStations(), state.getCars());
-		ObjectOutputStream o;
-		try {
-			o = new ObjectOutputStream(this.socket.getOutputStream());
-			o.writeObject(snapshot);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	
-	public double distanceBetween(double lat1, double lon1, double lat2, double lon2){
+		save();
 		
+	}
+	
+	public double distanceBetween(double lat1, double lon1, double lat2, double lon2) {
+
 		lat1 /= (0.000009 * 1E6);
 		lon1 /= (0.000011 * 1E6);
 		
@@ -166,7 +175,7 @@ public class ServerWorker implements Runnable {
 		
 		try {
 			io = new ObjectInputStream(this.socket.getInputStream());
-			packet = io.readObject();			
+			packet = io.readObject();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -185,5 +194,19 @@ public class ServerWorker implements Runnable {
 			this.doCarGossipMsg((CarGossipMsg) packet);
 		if (packet instanceof MonitorUpdate)
 			this.doMonitorUpdate();
+	}
+	
+	public void save() {
+
+		try {
+			FileOutputStream fout = new FileOutputStream("backup.cmov");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(this.state);
+			oos.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }
