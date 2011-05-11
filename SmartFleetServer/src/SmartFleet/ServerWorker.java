@@ -12,6 +12,8 @@ import java.util.Date;
 
 import messages.CarGossipMsg;
 import messages.CarRegisterMessage;
+import messages.MonitorUpdate;
+import messages.Snapshot;
 import messages.Station;
 import messages.StationList;
 import messages.StationRegisterMessage;
@@ -60,7 +62,7 @@ public class ServerWorker implements Runnable {
 					timeToUpdate += (distance * 100); 
 					serverCar.setTimeToUpdate(timeToUpdate + 10000);
 					if(this.state.getMissingcars().containsKey(serverCar.getId()))
-							this.state.getMissingcars().remove(serverCar.getId());
+						this.state.getMissingcars().remove(serverCar.getId());
 				}
 			}
 		}
@@ -129,6 +131,20 @@ public class ServerWorker implements Runnable {
 		
 	}
 	
+
+	private void doMonitorUpdate() {
+		Snapshot snapshot = new Snapshot(state.getStations(), state.getCars());
+		ObjectOutputStream o;
+		try {
+			o = new ObjectOutputStream(this.socket.getOutputStream());
+			o.writeObject(snapshot);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
 	public double distanceBetween(double lat1, double lon1, double lat2, double lon2){
 		
 		lat1 /= (0.000009 * 1E6);
@@ -167,6 +183,7 @@ public class ServerWorker implements Runnable {
 			this.doServerStation((ServerStation) packet);
 		if (packet instanceof CarGossipMsg)
 			this.doCarGossipMsg((CarGossipMsg) packet);
+		if (packet instanceof MonitorUpdate)
+			this.doMonitorUpdate();
 	}
-	
 }
