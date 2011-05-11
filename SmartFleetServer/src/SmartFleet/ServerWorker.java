@@ -8,9 +8,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 import messages.CarGossipMsg;
 import messages.CarRegisterMessage;
+import messages.MonitorUpdate;
+import messages.Snapshot;
 import messages.Station;
 import messages.StationList;
 import messages.StationRegisterMessage;
@@ -50,15 +53,15 @@ public class ServerWorker implements Runnable {
 					double distance = 0;
 					int lat = car.getLat();
 					int lon = car.getLog();
-					for (Flight f : car.getRoute().getRoute()) {
-						distance += this.distanceBetween(f.getLat(), f.getLon(), lat, lon);
+					for(Flight f : car.getRoute().getRoute()){
+						distance +=	this.distanceBetween(f.getLat(), f.getLon(), lat, lon);
 						lat = f.getLat();
 						lon = f.getLon();
 					}
 					long timeToUpdate = Calendar.getInstance().getTimeInMillis();
-					timeToUpdate += (distance * 100);
+					timeToUpdate += (distance * 100); 
 					serverCar.setTimeToUpdate(timeToUpdate + 10000);
-					if (this.state.getMissingcars().containsKey(serverCar.getId()))
+					if(this.state.getMissingcars().containsKey(serverCar.getId()))
 						this.state.getMissingcars().remove(serverCar.getId());
 				}
 			}
@@ -128,8 +131,22 @@ public class ServerWorker implements Runnable {
 		
 	}
 	
-	public double distanceBetween(double lat1, double lon1, double lat2, double lon2) {
 
+	private void doMonitorUpdate() {
+		Snapshot snapshot = new Snapshot(state.getStations(), state.getCars());
+		ObjectOutputStream o;
+		try {
+			o = new ObjectOutputStream(this.socket.getOutputStream());
+			o.writeObject(snapshot);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public double distanceBetween(double lat1, double lon1, double lat2, double lon2){
+		
 		lat1 /= (0.000009 * 1E6);
 		lon1 /= (0.000011 * 1E6);
 		
@@ -144,19 +161,12 @@ public class ServerWorker implements Runnable {
 	@Override
 	public void run() {
 
-		// DELETE
-		System.out.println(this.state.getStations().size());
-		this.state.getStations().put(3, new ServerStation(1, 1, 1, 1, "ola", 565, null, null));
-		this.state.getStations().put(4, new ServerStation(2, 1, 1, 1, "ola", 565, null, null));
-		this.state.getStations().put(5, new ServerStation(3, 1, 1, 1, "ola", 565, null, null));
-		this.state.getStations().put(6, new ServerStation(4, 1, 1, 1, "ola", 565, null, null));
-		// DELETE
 		ObjectInput io = null;
 		Object packet = null;
 		
 		try {
 			io = new ObjectInputStream(this.socket.getInputStream());
-			packet = io.readObject();
+			packet = io.readObject();			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -173,6 +183,7 @@ public class ServerWorker implements Runnable {
 			this.doServerStation((ServerStation) packet);
 		if (packet instanceof CarGossipMsg)
 			this.doCarGossipMsg((CarGossipMsg) packet);
+		if (packet instanceof MonitorUpdate)
+			this.doMonitorUpdate();
 	}
-	
 }
