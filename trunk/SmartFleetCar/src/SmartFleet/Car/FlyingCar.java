@@ -26,6 +26,7 @@ public class FlyingCar extends TimerTask {
 	private double max_battery;
 
 	private Runnable r;
+	private Runnable leave;
 
 	private RouteOverlay routeoverlay;
 
@@ -43,17 +44,17 @@ public class FlyingCar extends TimerTask {
 	
 	private HashMap<Integer, RWCar> carsSeen;
 	
-	//private Flight flight;
-	
 	private Route route;
 	
 	private int clock;
+	
+	private boolean waitforleave = false;
 
-	public FlyingCar(MapController m, RouteOverlay r, Handler hand, Runnable ru) {
+	public FlyingCar(MapController m, RouteOverlay r, Handler hand, Runnable ru, Runnable l) {
 
 		super();
 
-		this.velocity = 10; // meters per second
+		this.velocity = 60;//10; // meters per second
 		this.height = 0;
 
 		this.max_battery = 10 * 3600;
@@ -64,9 +65,10 @@ public class FlyingCar extends TimerTask {
 
 		this.h = hand;
 		this.r = ru;
+		this.leave = l;
 
 		this.timer = new Timer("Realtimer");
-		this.timer.scheduleAtFixedRate(this, 1000, 1000);
+		this.timer.scheduleAtFixedRate(this, 0, 1000);
 		
 		//this.stations = new HashMap<Integer, Info>();
 		//this.cars = new HashMap<Integer, Info>();
@@ -112,7 +114,6 @@ public class FlyingCar extends TimerTask {
 
 		return this.max_battery;
 	}
-
 
 	public GeoPoint getMyLocation() {
 
@@ -190,7 +191,6 @@ public class FlyingCar extends TimerTask {
 		this.max_battery = max_battery;
 	}
 
-
 	public void setMyLocation(GeoPoint myLocation) {
 		this.myLocation = myLocation;
 		this.routeoverlay.setMylocation(myLocation);
@@ -218,6 +218,10 @@ public class FlyingCar extends TimerTask {
 
 	public void updatePosition() {
 		
+		if(this.waitforleave){
+			this.waitforleave = false;
+		}
+		
 		if(this.getBattery() == 0){
 			this.setHeight(0);
 			return;
@@ -227,10 +231,9 @@ public class FlyingCar extends TimerTask {
 
 			if (this.myLocation.equals(new GeoPoint(this.route.getRoute().get(0).getLat(),
 													this.route.getRoute().get(0).getLon()))) {
-				this.route.getRoute().removeFirst();
-				this.routeoverlay.setRoute(this.route);
 				this.setHeight(0);
-				//TODO PARA PARA SAIR PASSAGEIROS
+				this.waitforleave = true;
+				this.h.post(this.leave);
 				return;
 			}
 
@@ -282,7 +285,7 @@ public class FlyingCar extends TimerTask {
 				if (logd < this.route.getRoute().get(0).getLon())
 					logd = this.route.getRoute().get(0).getLon();
 
-			this.battery -= 500;
+			this.battery -= this.velocity;
 			if(this.battery < 0)
 				this.battery = 0;
 
