@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.util.Calendar;
 
 import messages.ChargeMessage;
 import messages.RouteSending;
@@ -53,11 +54,12 @@ public class CarWorker implements Runnable{
 				double h = this.sfc.getMyCar().getHeight();
 				this.sfc.getMyCar().setHeight(h + 100);
 			}
-			else if(this.sfc.getId() > car.getId()){
+			else if(this.sfc.getMyCar().getBattery() == car.getBattery() && this.sfc.getId() > car.getId()){
 				double h = this.sfc.getMyCar().getHeight();
 				this.sfc.getMyCar().setHeight(h + 100);
 			}
 		}
+		car.setInformationtime(Calendar.getInstance().getTimeInMillis());
 		this.sfc.getMyCar().getCarsSeen().put(car.getId(), car);		
 	}
 	
