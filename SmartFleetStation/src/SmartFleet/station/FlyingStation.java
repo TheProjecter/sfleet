@@ -6,6 +6,7 @@ import java.util.HashMap;
 import messages.Station;
 
 import structs.Flight;
+import structs.ServerCar;
 
 import com.google.android.maps.GeoPoint;
 
@@ -19,6 +20,8 @@ public class FlyingStation {
 	private ArrayList<Long> waitingTime;
 	
 	private ArrayList<Station> stations;
+	
+	private ArrayList<ServerCar> missingcars;
 
 	public FlyingStation(GeoPoint location){
 		
@@ -27,6 +30,7 @@ public class FlyingStation {
 		this.flightqueue = new ArrayList<Flight>();
 		this.stations = new ArrayList<Station>();
 		this.waitingTime = new ArrayList<Long>();
+		this.setMissingcars(new ArrayList<ServerCar>());
 	}
 	
 	public void setMylocation(GeoPoint mylocation) {
@@ -67,6 +71,14 @@ public class FlyingStation {
 
 	public ArrayList<Long> getWaitingTime() {
 		return waitingTime;
+	}
+
+	public void setMissingcars(ArrayList<ServerCar> missingcars) {
+		this.missingcars = missingcars;
+	}
+
+	public ArrayList<ServerCar> getMissingcars() {
+		return missingcars;
 	}	
 	
 }
