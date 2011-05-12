@@ -1,5 +1,6 @@
 package SmartFleet.monitor;
 
+import structs.Flight;
 import structs.ServerCar;
 import structs.ServerStation;
 import android.graphics.Canvas;
@@ -73,10 +74,15 @@ public class DrawOverlay extends Overlay{
 		    	for(ServerCar c : this.sfm.getCarlist().values())
 		    	{	
 		    		projection.toPixels(new GeoPoint(c.getLat(), c.getLon()), point);
-		    		//projection.toPixels(c.getMyDestination(), point2);
 		    		canvas.drawCircle(point.x, point.y, 5, paint);
-		    		//canvas.drawCircle(point2.x, point2.y, (float) 2.5, paint);
-		    		//canvas.drawLine(point.x, point.y, point2.x, point2.y, paint);
+		    		
+		    		for(Flight f : c.getRoute().getRoute()){
+		    			projection.toPixels(new GeoPoint(f.getLat(),
+		    											 f.getLon()),
+		    											 point2);
+		    			canvas.drawLine(point.x, point.y, point2.x, point2.y, paint);
+		    			point = point2;
+		    		}
 		    	}
 		    }
 		    

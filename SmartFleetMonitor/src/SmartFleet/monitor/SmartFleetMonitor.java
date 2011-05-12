@@ -6,13 +6,14 @@ import java.util.Map;
 
 import structs.Flight;
 import structs.RWCar;
+import structs.Route;
 import structs.ServerCar;
 import structs.ServerStation;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -68,9 +69,37 @@ public class SmartFleetMonitor extends MapActivity {
 		this.mapc.animateTo(new GeoPoint(38736830, -9138181));
         this.mapView.getOverlays().add(new DrawOverlay(this));
         
-        UpdateMonitor.setMainActivity(this, this.serverport, this.serverip);
-	    final Intent monitorListenerService = new Intent(this, UpdateMonitor.class);
-		startService(monitorListenerService);
+        //UpdateMonitor.setMainActivity(this, this.serverport, this.serverip);
+	    //final Intent monitorListenerService = new Intent(this, UpdateMonitor.class);
+		//startService(monitorListenerService);
+        
+        //POPULATE
+        ServerCar car0 = new ServerCar(0, 38765775, -9133007, 0, 36000, new Route(), 1111111, 111111, 10); 
+        ServerCar car1 = new ServerCar(1, 38765775, -9133007, 0, 36000, new Route(), 1111111, 111111, 10);
+        HashMap<Integer, RWCar> stationcarlist = new HashMap<Integer, RWCar>();
+        RWCar rwcar0 = new RWCar();
+        rwcar0.setId(car0.getId());
+        rwcar0.setBattery(car0.getBattery());
+        rwcar0.setClock(car0.getClock());
+        rwcar0.setLat(car0.getLat());
+        rwcar0.setLog(car0.getLon());
+        rwcar0.setVelocity(car0.getVelocity());
+        RWCar rwcar1 = new RWCar();
+        rwcar1.setId(car1.getId());
+        rwcar1.setBattery(car1.getBattery());
+        rwcar1.setClock(car1.getClock());
+        rwcar1.setLat(car1.getLat());
+        rwcar1.setLog(car1.getLon());
+        rwcar1.setVelocity(car1.getVelocity());
+        stationcarlist.put(0, rwcar0);
+        stationcarlist.put(1, rwcar1);
+        
+        ServerStation station2 = new ServerStation(2, 38765775, -9133007, 0, "", 23, stationcarlist, new ArrayList<Flight>());
+    
+        this.carlist.put(0, car0);
+        this.carlist.put(1, car1);
+        this.stationlist.put(2, station2);
+    
     }
 
     public void callStationInfo(ServerStation s){
@@ -106,17 +135,33 @@ public class SmartFleetMonitor extends MapActivity {
     	});
     	
     	final SmartFleetMonitor smf = this;
+    	final ServerStation ser = s;
     	
     	builder.setNegativeButton("Cars", new DialogInterface.OnClickListener() {
 
+    		ServerStation serv = ser;
+    		
     		public void onClick(DialogInterface dialog, int which) {
     			AlertDialog.Builder builder = new AlertDialog.Builder(smf);
     			builder.setCancelable(true);
     			builder.setTitle("Cars");
-    			final CharSequence[] items = {"Red", "Green", "Blue"};
+    			
+    			final CharSequence[] items = new CharSequence[serv.getCarsDocked().size()];
+    			    
+    			int i = 0;
+    			for(Integer c : serv.getCarsDocked().keySet()){
+    				items[i] = "Car" + c;
+    				i++;
+    			}
+    			
     			builder.setItems(items, new DialogInterface.OnClickListener() {
+    				
     				public void onClick(DialogInterface dialog, int which) {
-    					dialog.dismiss();
+    					CharSequence s = items[which];
+    					int i = Integer.parseInt(""+s.charAt(3));
+    					Log.d("cois", "" + i);
+    					ServerCar sc = smf.carlist.get(i);
+    					smf.callCarInfo(sc);
     				}
     			});
     			AlertDialog alert = builder.create();
