@@ -8,6 +8,7 @@ import java.net.Socket;
 import messages.CarAdvertisement;
 import messages.Station;
 import structs.RWCar;
+import structs.ServerCar;
 import android.util.Log;
 
 public class StationWorker implements Runnable{
@@ -40,6 +41,10 @@ public class StationWorker implements Runnable{
 			this.sfs.getMyStation().getStations().add(s);
 		}
 		
+		public void doMissingCar(ServerCar car){
+			this.sfs.getMyStation().getMissingcars().add(car);
+		}
+		
 		public void run() {
 			
 			
@@ -67,6 +72,9 @@ public class StationWorker implements Runnable{
 			}
 			else if(packet instanceof Station){
 				doStationAdd((Station)packet);
+			}
+			else if(packet instanceof ServerCar){
+				doMissingCar((ServerCar)packet);
 			}
 		
 			
