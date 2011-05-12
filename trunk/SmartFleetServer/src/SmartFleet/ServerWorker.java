@@ -47,7 +47,7 @@ public class ServerWorker implements Runnable {
 					serverCar.setLat(car.getLat());
 					serverCar.setLon(car.getLog());
 					serverCar.setRoute(car.getRoute());
-					serverCar.setInformationTime(Calendar.getInstance().getTimeInMillis());
+					serverCar.setInformationTime(Calendar.getInstance().getTimeInMillis() - car.getInformationtime());
 					serverCar.setVelocity(car.getVelocity());
 					double distance = 0;
 					int lat = car.getLat();
@@ -62,10 +62,12 @@ public class ServerWorker implements Runnable {
 					long timeToUpdate = (long)(distance/car.getVelocity());
 					timeToUpdate *= 1000;
 					timeToUpdate += (stops*1000);
-					timeToUpdate += Calendar.getInstance().getTimeInMillis();
+					timeToUpdate += serverCar.getInformationTime();
 					serverCar.setTimeToUpdate(timeToUpdate);
-					if (this.state.getMissingcars().containsKey(serverCar.getId()))
+					if (this.state.getMissingcars().containsKey(serverCar.getId())){
 						this.state.getMissingcars().remove(serverCar.getId());
+						this.state.getCarsfound().put(serverCar.getId(), serverCar);
+					}
 				}
 			}
 		
