@@ -24,9 +24,7 @@ import messages.ChargeMessage;
 import messages.LoginResponse;
 import messages.RouteSending;
 import messages.Station;
-import messages.StationList;
 import messages.StationLogin;
-import messages.StationRegisterMessage;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -63,16 +61,16 @@ public class SmartFleetStation extends Activity {
 	
 	private int							id				= 0;
 	
-	private String						myip			= "169.254.208.154";
+	private String						myip			= "194.210.228.38";
 	private int							myport			= 5001;
 	
 	private FlyingStation				myStation;
-	private String						realworldip		= "169.254.208.154";
+	private String						realworldip		= "194.210.228.38";
 	
 	private int							realworldport	= 6798;
 	private LinkedList<RouteSending>	rslist			= new LinkedList<RouteSending>();
 	
-	private String						serverip		= "194.210.228.108";
+	private String						serverip		= "194.210.228.38";
 	
 	private int							serverport		= 6799;
 	final Runnable						mCallPassengers	= new Runnable() {
@@ -576,44 +574,15 @@ public class SmartFleetStation extends Activity {
 		final Intent chargings = new Intent(this, ChargingService.class);
 		startService(chargings);
 		
-		// UpdateCentralServerService.setMainActivity(this);
-		// final Intent ucss = new Intent(this, UpdateCentralServerService.class);
-		// startService(ucss);
+		UpdateCentralServerService.setMainActivity(this);
+		final Intent ucss = new Intent(this, UpdateCentralServerService.class);
+		startService(ucss);
 		
 		this.registerOnRealWorld();
-		// this.registerOnCentralServer();
 		
 	}
 	
-	public void registerOnCentralServer() {
 
-		try {
-			Socket s = new Socket(this.serverip, this.serverport);
-			StationRegisterMessage ssm = new StationRegisterMessage(this.id, this.myStation.getMylocation().getLatitudeE6(), this.myStation.getMylocation().getLongitudeE6(), this.myport, this.myip, this.carsDocked);
-			
-			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
-			oo.writeObject(ssm);
-			ObjectInput oi = new ObjectInputStream(s.getInputStream());
-			StationList sl = (StationList) oi.readObject();
-			s.close();
-			
-			for (Station st : sl.getStations())
-				this.myStation.getStations().add(st);
-			
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
 	public void registerOnRealWorld() {
 
 		try {
