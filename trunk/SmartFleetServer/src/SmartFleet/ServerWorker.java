@@ -11,12 +11,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import messages.CarGossipMsg;
-import messages.CarRegisterMessage;
 import messages.MonitorUpdate;
 import messages.Snapshot;
 import messages.Station;
 import messages.StationList;
-import messages.StationRegisterMessage;
 import structs.Flight;
 import structs.RWCar;
 import structs.ServerCar;
@@ -50,6 +48,7 @@ public class ServerWorker implements Runnable {
 					serverCar.setLon(car.getLog());
 					serverCar.setRoute(car.getRoute());
 					serverCar.setInformationTime(Calendar.getInstance().getTimeInMillis());
+					serverCar.setVelocity(car.getVelocity());
 					double distance = 0;
 					int lat = car.getLat();
 					int lon = car.getLog();
@@ -59,33 +58,25 @@ public class ServerWorker implements Runnable {
 						lon = f.getLon();
 					}
 					long timeToUpdate = Calendar.getInstance().getTimeInMillis();
-					timeToUpdate += (distance * 100);
+					timeToUpdate += ((distance/serverCar.getVelocity()) * 1000);
 					serverCar.setTimeToUpdate(timeToUpdate + 10000);
 					if (this.state.getMissingcars().containsKey(serverCar.getId()))
 						this.state.getMissingcars().remove(serverCar.getId());
 				}
+			}
+		
+			else{
+				System.out.println("-->Logged Car " + car.getId() + " to the server.");
+				long time = Calendar.getInstance().getTimeInMillis();
+				ServerCar sc = new ServerCar(car.getId(), car.getLat(), car.getLog(), car.getClock(), car.getBattery(), car.getRoute(), time, 0, car.getVelocity());
+				this.state.getCars().put(sc.getId(), sc);
 			}
 		}
 		
 		save();
 		
 	}
-	
-	private void doCarRegisterMessage(CarRegisterMessage packet) {
 
-		try {
-			this.socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println("-->Logged Car " + packet.getId() + " to the server.");
-		long time = Calendar.getInstance().getTimeInMillis();
-		ServerCar car = new ServerCar(packet.getId(), packet.getLat(), packet.getLon(), 0, 3600 * 10, packet.getRoute(), time, 0);
-		this.state.getCars().put(car.getId(), car);
-		
-		save();
-		
-	}
 	
 	private void doMonitorUpdate() {
 
@@ -101,57 +92,54 @@ public class ServerWorker implements Runnable {
 	}
 	
 	private void doServerStation(ServerStation ss) {
-
-		try {
-			this.socket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		this.state.getStations().put(ss.getId(), ss);
-		
-		save();
-		
-	}
-	
-	private void doStationRegisterMessage(StationRegisterMessage packet) {
-
-		System.out.println("-->Logged Station " + packet.getId() + " to the server.");
-		System.out.println("--->IP: " + packet.getIp());
-		System.out.println("--->port: " + packet.getPort());
-		ArrayList<Station> stations = new ArrayList<Station>();
-		for (ServerStation ss : this.state.getStations().values()) {
-			Station st = new Station(ss.getLat(), ss.getLon());
-			stations.add(st);
-		}
-		StationList stationList = new StationList(stations);
-		try {
-			ObjectOutputStream o = new ObjectOutputStream(this.socket.getOutputStream());
-			o.writeObject(stationList);
-			this.socket.close();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Station st = new Station(packet.getLat(), packet.getLon());
-		for (ServerStation ss : this.state.getStations().values()) {
+		if(!this.state.getStations().containsKey(ss.getId())){
+			System.out.println("-->Logged Station " + ss.getId() + " to the server.");
+			System.out.println("--->IP: " + ss.getIp());
+			System.out.println("--->port: " + ss.getPort());
+			ArrayList<Station> stations = new ArrayList<Station>();
+			for (ServerStation ss1 : this.state.getStations().values()) {
+				Station st = new Station(ss1.getLat(), ss1.getLon());
+				stations.add(st);
+			}
+			StationList stationList = new StationList(stations);
 			try {
-				Socket s = new Socket(ss.getIp(), ss.getPort());
-				ObjectOutputStream o = new ObjectOutputStream(s.getOutputStream());
-				o.writeObject(st);
+				ObjectOutputStream o = new ObjectOutputStream(this.socket.getOutputStream());
+				o.writeObject(stationList);
+				this.socket.close();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			Station st = new Station(ss.getLat(), ss.getLon());
+			for (ServerStation ss1 : this.state.getStations().values()) {
+				try {
+					Socket s = new Socket(ss1.getIp(), ss1.getPort());
+					ObjectOutputStream o = new ObjectOutputStream(s.getOutputStream());
+					o.writeObject(st);
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		else{
+			StationList stationList = new StationList(null);
+			try {
+				ObjectOutputStream o = new ObjectOutputStream(this.socket.getOutputStream());
+				o.writeObject(stationList);
+				this.socket.close();
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+
+		this.state.getStations().put(ss.getId(), ss);
 		
-		ServerStation serverStation = new ServerStation(packet.getId(), packet.getLat(), packet.getLon(), packet.getPort(), packet.getIp(), 0, packet.getCarsDocked(), null);
-		this.state.getStations().put(serverStation.getId(), serverStation);
-		
-		save();
-		
+		save();		
 	}
 	
 	public double distanceBetween(double lat1, double lon1, double lat2, double lon2) {
@@ -184,10 +172,6 @@ public class ServerWorker implements Runnable {
 			e.printStackTrace();
 		}
 		
-		if (packet instanceof CarRegisterMessage)
-			this.doCarRegisterMessage((CarRegisterMessage) packet);
-		if (packet instanceof StationRegisterMessage)
-			this.doStationRegisterMessage((StationRegisterMessage) packet);
 		if (packet instanceof ServerStation)
 			this.doServerStation((ServerStation) packet);
 		if (packet instanceof CarGossipMsg)
