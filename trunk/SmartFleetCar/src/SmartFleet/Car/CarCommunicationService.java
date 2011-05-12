@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -41,7 +42,7 @@ private static SmartFleetCar MAIN_ACTIVITY;
 				Socket s = null;
 				if(!this.sfc.getMyCar().getCarsAt300().isEmpty()){
 					for(RWCar car : this.sfc.getMyCar().getCarsAt300()){				
-						try {
+						try {							
 							s = new Socket(car.getIp(), car.getPort());
 							
 							Log.d("smartfleet", "Comunicating with a car at 300.");
@@ -68,6 +69,7 @@ private static SmartFleetCar MAIN_ACTIVITY;
 				if(!this.sfc.getMyCar().getCarsAt200().isEmpty()){
 					for(RWCar car : this.sfc.getMyCar().getCarsAt200()){				
 						try {
+							
 							s = new Socket(car.getIp(), car.getPort());
 							
 							Log.d("smartfleet", "Comunicating with car at 200.");
@@ -92,12 +94,18 @@ private static SmartFleetCar MAIN_ACTIVITY;
 					}
 				}
 				if(this.sfc.getMyCar().isNearStation()){
-					try {	
+					try {
+						
 						s = new Socket(this.sfc.getServerip(), this.sfc.getServerport());
 
 						Log.d("smartfleet", "Comunicating with the server.");
 
 						this.sfc.getMyCar().incrementClock();
+						
+						long currenttime = Calendar.getInstance().getTimeInMillis();
+						
+						for(RWCar car : this.sfc.getMyCar().getCarsSeen().values())
+							car.setInformationtime(currenttime - car.getInformationtime());
 
 						RWCar rwcar = new RWCar(this.sfc.getId(),
 								this.sfc.getMyCar().getBattery(),
@@ -105,8 +113,9 @@ private static SmartFleetCar MAIN_ACTIVITY;
 								this.sfc.getMyCar().getMyLocation().getLongitudeE6(),
 								this.sfc.getMyCar().getClock(),
 								this.sfc.getMyCar().getRoute(),
-								this.sfc.getMyCar().getVelocity());
-						
+								this.sfc.getMyCar().getVelocity(),
+								0);
+
 						this.sfc.getMyCar().getCarsSeen().put(rwcar.getId(), rwcar);
 
 						CarGossipMsg cgm = new CarGossipMsg(this.sfc.getMyCar().getCarsSeen().values());
