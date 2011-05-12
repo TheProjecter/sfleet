@@ -38,10 +38,22 @@ public class StationWorker implements Runnable{
 		}
 		
 		public void doStationAdd(Station s){
+			try {
+				this.socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			this.sfs.getMyStation().getStations().add(s);
 		}
 		
 		public void doMissingCar(ServerCar car){
+			try {
+				this.socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			this.sfs.getMyStation().getMissingcars().add(car);
 		}
 		
