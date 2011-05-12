@@ -127,25 +127,29 @@ public class RWWorker implements Runnable{
 			ArrayList<RWCar> carsAt300 = new ArrayList<RWCar>();
 			boolean nearStation = false;
 			for(RWCar car : this.state.getCarSubscribers().values()){
-				double distance = this.distanceBetween(car.getLat(), car.getLog(), c.getLat(), c.getLog());
-				if(distance <= 200){
-					RWCar carInfo = new RWCar(car.getIp(), car.getPort());
-					carsAt200.add(carInfo);
-				}
-				else if(distance <= 300){
-					RWCar carInfo = new RWCar(car.getIp(), car.getPort());
-					carsAt300.add(carInfo);
+				if(car.getId() != cu.getId()){
+					double distance = this.distanceBetween(car.getLat(), car.getLog(), c.getLat(), c.getLog());
+					if(distance <= 200){
+						RWCar carInfo = new RWCar(car.getIp(), car.getPort());
+						carsAt200.add(carInfo);
+					}
+					else if(distance <= 300){
+						RWCar carInfo = new RWCar(car.getIp(), car.getPort());
+						carsAt300.add(carInfo);
+					}
 				}
 			}
 			for(RWCar car : this.state.getCarCrash().values()){
-				double distance = this.distanceBetween(car.getLat(), car.getLog(), c.getLat(), c.getLog());
-				if(distance <= 200){
-					RWCar carInfo = new RWCar(car.getIp(), car.getPort());
-					carsAt200.add(carInfo);
-				}
-				else if(distance <= 300){
-					RWCar carInfo = new RWCar(car.getIp(), car.getPort());
-					carsAt300.add(carInfo);
+				if(car.getId() != cu.getId()){
+					double distance = this.distanceBetween(car.getLat(), car.getLog(), c.getLat(), c.getLog());
+					if(distance <= 200){
+						RWCar carInfo = new RWCar(car.getIp(), car.getPort());
+						carsAt200.add(carInfo);
+					}
+					else if(distance <= 300){
+						RWCar carInfo = new RWCar(car.getIp(), car.getPort());
+						carsAt300.add(carInfo);
+					}
 				}
 			}
 			for(RWStation station : this.state.getStationCommList().values()){
