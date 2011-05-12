@@ -18,9 +18,10 @@ public class Flight implements Serializable{
 	public Flight(){
 		this.partyname = "";
 		this.npassengers = 0;
-		this.destination = null;
+		this.destination = "";
 		this.lat = 0;
 		this.lon = 0;
+		this.timeof = 0;
 	}
 	
 	public Flight(String partyname, int npassengers, String destination, int lat, int lon){
@@ -72,6 +73,17 @@ public class Flight implements Serializable{
 
 	public long getTimeof() {
 		return timeof;
+	}
+	
+	public Flight clone(){
+		Flight f = new Flight();
+		f.setDestination(this.getDestination());
+		f.setLat(this.getLat());
+		f.setLon(this.getLon());
+		f.setNpassengers(this.getNpassengers());
+		f.setPartyname(this.getPartyname());
+		f.setTimeof(this.getTimeof());
+		return f;
 	}
 	
 }

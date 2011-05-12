@@ -7,6 +7,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.sql.Time;
 import java.util.Calendar;
 
 import messages.CarAdvertisement;
@@ -46,11 +47,11 @@ public class SmartFleetCar extends MapActivity {
 	
 	private int id = 0;
 	
-	private String realworldip = "194.210.228.38";
+	private String realworldip = "194.210.228.181";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
-	private String myip = "194.210.228.38";
+	private String myip = "194.210.228.181";
 
 	private String serverip = "194.210.228.38";
 	private int serverport = 6799;
@@ -115,9 +116,9 @@ public class SmartFleetCar extends MapActivity {
 	    final Intent CarUpdateService = new Intent(this, CarUpdateService.class);
 		startService(CarUpdateService);
 		
-		CarCommunicationService.setMainActivity(this);
-	    final Intent carCommunicationService = new Intent(this, CarCommunicationService.class);
-		startService(carCommunicationService);
+		//CarCommunicationService.setMainActivity(this);
+	    //final Intent carCommunicationService = new Intent(this, CarCommunicationService.class);
+		//startService(carCommunicationService);
 
 		this.registerOnRealWorld();
 		
@@ -130,27 +131,38 @@ public class SmartFleetCar extends MapActivity {
 	}
 
 	public void updateUI() {
-		// TODO: RUIQ este cast (int) e necessario?
 		this.batterytext.setText((int) this.myCar.getPercentageBattery() + "%");
 		this.heightext.setText((int) this.myCar.getHeight() + "m");
 		
 		if(!this.myCar.getRoute().getRoute().isEmpty()){
+			
+			Flight f = this.myCar.getRoute().getRoute().getFirst().clone();
+			
 			double distance = this.distanceBetween(this.myCar.getMyLocation().getLatitudeE6(),
 					this.myCar.getMyLocation().getLongitudeE6(), 
-					this.myCar.getRoute().getRoute().getFirst().getLat(),
-					this.myCar.getRoute().getRoute().getFirst().getLon());
+					f.getLat(),
+					f.getLon());
 
-			double times = distance / this.myCar.getVelocity();
+			double times = (distance / this.myCar.getVelocity());
 
 			int time_h = (int)(times/3600);
 			int time_m = (int)((times%3600)/60);
 			int time_s = (int)(times%60.0);
 
-			String time = "   " + time_h + "h:" + time_m + "m:" + time_s + "s";
-			this.timestoptext.setText("Time to next stop:" + time);
+			Calendar c = Calendar.getInstance();
+			c.set(0, 0, 0, time_h, time_m, time_s);
+			
+			String time = "";
+			if(f.getDestination().equals(""))
+				time += "Station";
+			else
+				time += f.getDestination();
+			
+			time += " in " + new Time(c.getTimeInMillis()).toString();
+			this.timestoptext.setText("Next stop: " + time);
 		}
 		else
-			this.timestoptext.setText("Time to next stop:");
+			this.timestoptext.setText("Next stop:");
 		
 		String partynames = "Parties:\n";
 		for(Flight f : this.myCar.getRoute().getRoute()){
