@@ -18,6 +18,8 @@ public class ServerState implements Serializable {
 	
 	private Map<Integer, ServerCar>		missingcars;
 	
+	private Map<Integer, ServerCar>		carsfound;
+	
 	private Map<Integer, ServerStation>	stations;
 	
 	public ServerState() {
@@ -25,6 +27,8 @@ public class ServerState implements Serializable {
 		this.stations = new HashMap<Integer, ServerStation>();
 		this.cars = new HashMap<Integer, ServerCar>();
 		this.missingcars = new HashMap<Integer, ServerCar>();
+		this.carsfound = new HashMap<Integer, ServerCar>();
+
 	}
 	
 	public Map<Integer, ServerCar> getCars() {
@@ -55,5 +59,13 @@ public class ServerState implements Serializable {
 	public void setStations(Map<Integer, ServerStation> stations) {
 
 		this.stations = stations;
+	}
+
+	public void setCarsfound(Map<Integer, ServerCar> carsfound) {
+		this.carsfound = carsfound;
+	}
+
+	public Map<Integer, ServerCar> getCarsfound() {
+		return carsfound;
 	}
 }
