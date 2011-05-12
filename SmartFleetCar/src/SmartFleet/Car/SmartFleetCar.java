@@ -11,7 +11,6 @@ import java.util.Calendar;
 
 import messages.CarAdvertisement;
 import messages.CarLogin;
-import messages.CarRegisterMessage;
 import messages.CarStationAdvertise;
 import messages.CarSubscribe;
 import messages.CarUnsubscribe;
@@ -46,14 +45,14 @@ public class SmartFleetCar extends MapActivity {
 	private FlyingCar myCar;
 	
 	private int id = 0;
-
-	private String realworldip = "194.210.229.17";
+	
+	private String realworldip = "194.210.228.38";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
-	private String myip = "194.210.229.17";
+	private String myip = "194.210.228.38";
 
-	private String serverip = "194.210.228.108";
+	private String serverip = "194.210.228.38";
 	private int serverport = 6799;
 
 	
@@ -116,12 +115,11 @@ public class SmartFleetCar extends MapActivity {
 	    final Intent CarUpdateService = new Intent(this, CarUpdateService.class);
 		startService(CarUpdateService);
 		
-		//CarCommunicationService.setMainActivity(this);
-	    //final Intent carCommunicationService = new Intent(this, CarCommunicationService.class);
-		//startService(carCommunicationService);
+		CarCommunicationService.setMainActivity(this);
+	    final Intent carCommunicationService = new Intent(this, CarCommunicationService.class);
+		startService(carCommunicationService);
 
 		this.registerOnRealWorld();
-		//this.registerOnCentralServer();
 		
 	}
 
@@ -262,30 +260,6 @@ public class SmartFleetCar extends MapActivity {
 
 				Log.d("smartfleet", "Successfully logged at Real World Server. my port:" + s.getLocalPort());
 			}
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	
-	}
-	
-	public void registerOnCentralServer(){
-		
-		try {
-			Socket s = new Socket(this.serverip, this.serverport);
-			CarRegisterMessage csm = new CarRegisterMessage(this.id, 
-														this.myCar.getMyLocation().getLatitudeE6(),
-														this.myCar.getMyLocation().getLongitudeE6(),
-														this.myCar.getRoute());
-			
-			
-			ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
-			oo.writeObject(csm);
-			s.close();
-			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
