@@ -61,7 +61,7 @@ public class ServerWorker implements Runnable {
 					}
 					long timeToUpdate = (long)(distance/car.getVelocity());
 					timeToUpdate *= 1000;
-					timeToUpdate += stops*1000;
+					timeToUpdate += (stops*1000);
 					timeToUpdate += Calendar.getInstance().getTimeInMillis();
 					serverCar.setTimeToUpdate(timeToUpdate);
 					if (this.state.getMissingcars().containsKey(serverCar.getId()))
