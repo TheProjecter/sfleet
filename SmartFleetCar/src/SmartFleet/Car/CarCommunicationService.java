@@ -38,13 +38,13 @@ private static SmartFleetCar MAIN_ACTIVITY;
 			
 			@Override
 			public void run(){
-				
+				Socket s = null;
 				if(!this.sfc.getMyCar().getCarsAt300().isEmpty()){
 					for(RWCar car : this.sfc.getMyCar().getCarsAt300()){				
-						try {				
-							Socket s = new Socket(car.getIp(), car.getPort());
+						try {
+							s = new Socket(car.getIp(), car.getPort());
 							
-							Log.d("smartfleet", "Comunicating with a car .");
+							Log.d("smartfleet", "Comunicating with a car at 300.");
 							
 							this.sfc.getMyCar().incrementClock();
 							
@@ -52,11 +52,12 @@ private static SmartFleetCar MAIN_ACTIVITY;
 													this.sfc.getMyCar().getBattery(),
 													this.sfc.getMyCar().getHeight(), 
 													this.sfc.getMyCar().getClock(),
-													300);
+													300,
+													this.sfc.getMyCar().getVelocity(),
+													this.sfc.getMyCar().getRoute());
 							
 							ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
 							oo.writeObject(rwcar);
-							
 							
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
@@ -66,10 +67,10 @@ private static SmartFleetCar MAIN_ACTIVITY;
 				}
 				if(!this.sfc.getMyCar().getCarsAt200().isEmpty()){
 					for(RWCar car : this.sfc.getMyCar().getCarsAt200()){				
-						try {				
-							Socket s = new Socket(car.getIp(), car.getPort());
+						try {
+							s = new Socket(car.getIp(), car.getPort());
 							
-							Log.d("smartfleet", "Comunicating station.");
+							Log.d("smartfleet", "Comunicating with car at 200.");
 							
 							this.sfc.getMyCar().incrementClock();
 							
@@ -77,12 +78,13 @@ private static SmartFleetCar MAIN_ACTIVITY;
 													this.sfc.getMyCar().getBattery(),
 													this.sfc.getMyCar().getHeight(), 
 													this.sfc.getMyCar().getClock(),
-													200);
+													200,
+													this.sfc.getMyCar().getVelocity(),
+													this.sfc.getMyCar().getRoute());
 							
 							ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
 							oo.writeObject(rwcar);
-							
-							
+		
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -90,10 +92,10 @@ private static SmartFleetCar MAIN_ACTIVITY;
 					}
 				}
 				if(this.sfc.getMyCar().isNearStation()){
-					try {				
-						Socket s = new Socket(this.sfc.getServerip(), this.sfc.getServerport());
+					try {	
+						s = new Socket(this.sfc.getServerip(), this.sfc.getServerport());
 
-						Log.d("smartfleet", "Comunicating with the station.");
+						Log.d("smartfleet", "Comunicating with the server.");
 
 						this.sfc.getMyCar().incrementClock();
 
