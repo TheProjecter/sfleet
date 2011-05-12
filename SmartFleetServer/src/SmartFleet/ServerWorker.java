@@ -52,14 +52,18 @@ public class ServerWorker implements Runnable {
 					double distance = 0;
 					int lat = car.getLat();
 					int lon = car.getLog();
-					for (Flight f : car.getRoute().getRoute()) {
-						distance += this.distanceBetween(f.getLat(), f.getLon(), lat, lon);
-						lat = f.getLat();
-						lon = f.getLon();
+					int stops = 0;
+					for (Flight f : car.getRoute().getRoute()){
+							distance += this.distanceBetween(f.getLat(), f.getLon(), lat, lon);
+							lat = f.getLat();
+							lon = f.getLon();
+							stops++;
 					}
-					long timeToUpdate = Calendar.getInstance().getTimeInMillis();
-					timeToUpdate += ((distance/serverCar.getVelocity()) * 1000);
-					serverCar.setTimeToUpdate(timeToUpdate + 10000);
+					long timeToUpdate = (long)(distance/car.getVelocity());
+					timeToUpdate *= 1000;
+					timeToUpdate += stops*1000;
+					timeToUpdate += Calendar.getInstance().getTimeInMillis();
+					serverCar.setTimeToUpdate(timeToUpdate);
 					if (this.state.getMissingcars().containsKey(serverCar.getId()))
 						this.state.getMissingcars().remove(serverCar.getId());
 				}
