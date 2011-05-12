@@ -57,6 +57,9 @@ private static SmartFleetCar MAIN_ACTIVITY;
 													this.sfc.getMyCar().getVelocity(),
 													this.sfc.getMyCar().getRoute());
 							
+							rwcar.setLat(this.sfc.getMyCar().getMyLocation().getLatitudeE6());
+							rwcar.setLog(this.sfc.getMyCar().getMyLocation().getLongitudeE6());
+							
 							ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
 							oo.writeObject(rwcar);
 							
@@ -83,6 +86,9 @@ private static SmartFleetCar MAIN_ACTIVITY;
 													200,
 													this.sfc.getMyCar().getVelocity(),
 													this.sfc.getMyCar().getRoute());
+							
+							rwcar.setLat(this.sfc.getMyCar().getMyLocation().getLatitudeE6());
+							rwcar.setLog(this.sfc.getMyCar().getMyLocation().getLongitudeE6());
 							
 							ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
 							oo.writeObject(rwcar);
