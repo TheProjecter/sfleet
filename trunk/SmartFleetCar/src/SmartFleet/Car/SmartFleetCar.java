@@ -47,7 +47,7 @@ public class SmartFleetCar extends MapActivity {
 	
 	private int id = 0;
 	
-	private String realworldip = "194.210.228.181";
+	private String realworldip = "194.210.228.38";
 	private int realworldport = 6798;
 	
 	private int myport = 5000;
@@ -116,9 +116,9 @@ public class SmartFleetCar extends MapActivity {
 	    final Intent CarUpdateService = new Intent(this, CarUpdateService.class);
 		startService(CarUpdateService);
 		
-		//CarCommunicationService.setMainActivity(this);
-	    //final Intent carCommunicationService = new Intent(this, CarCommunicationService.class);
-		//startService(carCommunicationService);
+		CarCommunicationService.setMainActivity(this);
+	    final Intent carCommunicationService = new Intent(this, CarCommunicationService.class);
+		startService(carCommunicationService);
 
 		this.registerOnRealWorld();
 		
