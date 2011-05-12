@@ -37,12 +37,14 @@ public class RWCar implements Serializable{
 		this.max_battery = 36000;
 	}
 	
-	public RWCar(int id, double battery, double height, int clock, int distance){
+	public RWCar(int id, double battery, double height, int clock, int distance, double velocity, Route route){
 		this.id = id;
 		this.battery = battery;
 		this.height = height;
 		this.clock = clock;
 		this.distance = distance;
+		this.velocity = velocity;
+		this.route = route;
 	}
 	
 	public RWCar(String ip, int port){
