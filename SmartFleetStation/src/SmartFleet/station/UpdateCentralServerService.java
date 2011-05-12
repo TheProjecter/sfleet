@@ -1,12 +1,17 @@
 package SmartFleet.station;
 
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import messages.Station;
+import messages.StationList;
 
 import structs.ServerStation;
 import android.app.Service;
@@ -58,10 +63,21 @@ private static SmartFleetStation MAIN_ACTIVITY;
 					Socket socket = new Socket(this.sfs.getServerip(), this.sfs.getServerport());
 					ObjectOutput oo = new ObjectOutputStream(socket.getOutputStream());
 					oo.writeObject(ss);
+					ObjectInput oi = new ObjectInputStream(socket.getInputStream());
+					StationList sl = (StationList)oi.readObject();
+					socket.close();
+					
+					if(sl.getStations() != null){
+						for (Station st : sl.getStations())
+							this.sfs.getMyStation().getStations().add(st);
+					}
 				} catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
