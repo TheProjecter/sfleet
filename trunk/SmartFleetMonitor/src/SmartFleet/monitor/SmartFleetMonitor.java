@@ -32,7 +32,7 @@ public class SmartFleetMonitor extends MapActivity {
 	private Map<Integer, ServerStation> stationlist;
 	private Map<Integer, ServerCar> carlist;
 	
-	private String serverip = "194.210.228.37";
+	private String serverip = "194.210.228.38";
 	private int serverport = 6799;
 	
 	// Need handler for callbacks to the UI thread

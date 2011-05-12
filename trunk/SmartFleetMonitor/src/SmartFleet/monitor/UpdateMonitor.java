@@ -61,7 +61,7 @@ private static SmartFleetMonitor MAIN_ACTIVITY;
 				}
 			}
 			
-		}, 0);
+		}, 0, 1000);
 	}
 	
 	@Override
