@@ -33,6 +33,8 @@ public class RWCar implements Serializable{
 	
 	private double velocity;
 	
+	private long informationtime;
+	
 	public RWCar(){
 		this.max_battery = 36000;
 	}
@@ -52,7 +54,7 @@ public class RWCar implements Serializable{
 		this.port = port;
 	}
 	
-	public RWCar(int id, double battery, int lat, int log, int clock, Route route, double velocity){
+	public RWCar(int id, double battery, int lat, int log, int clock, Route route, double velocity, long informationtime){
 		this.id = id;
 		this.battery = battery;
 		this.lat = lat;
@@ -60,6 +62,7 @@ public class RWCar implements Serializable{
 		this.route = route;
 		this.clock = clock;
 		this.velocity = velocity;
+		this.informationtime = informationtime;
 	}
 
 	public int getId() {
@@ -155,7 +158,13 @@ public class RWCar implements Serializable{
 	public double getVelocity() {
 		return velocity;
 	}
-	
-	
+
+	public void setInformationtime(long informationtime) {
+		this.informationtime = informationtime;
+	}
+
+	public long getInformationtime() {
+		return informationtime;
+	}	
 	
 }
