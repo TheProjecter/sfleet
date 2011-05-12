@@ -102,7 +102,8 @@ private static SmartFleetCar MAIN_ACTIVITY;
 								this.sfc.getMyCar().getMyLocation().getLatitudeE6(),
 								this.sfc.getMyCar().getMyLocation().getLongitudeE6(),
 								this.sfc.getMyCar().getClock(),
-								this.sfc.getMyCar().getRoute());
+								this.sfc.getMyCar().getRoute(),
+								this.sfc.getMyCar().getVelocity());
 						
 						this.sfc.getMyCar().getCarsSeen().put(rwcar.getId(), rwcar);
 
