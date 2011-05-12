@@ -26,7 +26,9 @@ public class ServerCar implements Serializable{
 	
 	private long timeToUpdate;
 	
-	public ServerCar(int id, int lat, int lon, int clock, double battery, Route route, long informationTime, long timeToUpdate){
+	private double velocity;
+	
+	public ServerCar(int id, int lat, int lon, int clock, double battery, Route route, long informationTime, long timeToUpdate, double velocity){
 		this.id = id;
 		this.lat = lat;
 		this.lon = lon;
@@ -35,6 +37,7 @@ public class ServerCar implements Serializable{
 		this.route = route;
 		this.informationTime = informationTime;
 		this.timeToUpdate = timeToUpdate;
+		this.setVelocity(velocity);
 	}
 
 	public int getId() {
@@ -99,5 +102,13 @@ public class ServerCar implements Serializable{
 
 	public long getTimeToUpdate() {
 		return timeToUpdate;
+	}
+
+	public void setVelocity(double velocity) {
+		this.velocity = velocity;
+	}
+
+	public double getVelocity() {
+		return velocity;
 	}
 }
