@@ -62,16 +62,16 @@ public class SmartFleetStation extends Activity {
 	
 	private int							id				= 0;
 	
-	private String						myip			= "194.210.228.215";
+	private String						myip			= "169.254.247.246";
 	private int							myport			= 5001;
 	
 	private FlyingStation				myStation;
-	private String						realworldip		= "194.210.228.215";
+	private String						realworldip		= "169.254.8.254";
 
 	private int							realworldport	= 6798;
 	private LinkedList<RouteSending>	rslist			= new LinkedList<RouteSending>();
 	
-	private String						serverip		= "194.210.228.215";
+	private String						serverip		= "169.254.8.254";
 	
 	private int							serverport		= 6799;
 	final Runnable						mCallPassengers	= new Runnable() {

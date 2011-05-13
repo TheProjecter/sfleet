@@ -22,6 +22,16 @@ public class ServerState implements Serializable {
 	
 	private Map<Integer, ServerStation>	stations;
 	
+	private int total_people = 0;
+	
+	private double total_battery = 0;
+	
+	private double total_km = 0;
+	
+	private int nflights = 0;
+	
+	private double total_time = 0;
+	
 	public ServerState() {
 
 		this.stations = new HashMap<Integer, ServerStation>();
@@ -67,5 +77,45 @@ public class ServerState implements Serializable {
 
 	public Map<Integer, ServerCar> getCarsfound() {
 		return carsfound;
+	}
+
+	public void setNpeople(int npeople) {
+		this.total_people = npeople;
+	}
+
+	public int getNpeople() {
+		return total_people;
+	}
+
+	public void setTotal_battery(double total_battery) {
+		this.total_battery = total_battery;
+	}
+
+	public double getTotal_battery() {
+		return total_battery;
+	}
+
+	public void setTotal_km(double total_km) {
+		this.total_km = total_km;
+	}
+
+	public double getTotal_km() {
+		return total_km;
+	}
+
+	public void setNflights(int nflights) {
+		this.nflights = nflights;
+	}
+
+	public int getNflights() {
+		return nflights;
+	}
+
+	public void setTotal_time(double total_time) {
+		this.total_time = total_time;
+	}
+
+	public double getTotal_time() {
+		return total_time;
 	}
 }
