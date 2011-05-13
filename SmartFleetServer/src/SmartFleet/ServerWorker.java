@@ -64,7 +64,6 @@ public class ServerWorker implements Runnable {
 					timeToUpdate += (stops*1000);
 					timeToUpdate += serverCar.getInformationTime();
 					serverCar.setTimeToUpdate(timeToUpdate);
-					System.out.println("Time to update 3: " + serverCar.getTimeToUpdate());
 					if (this.state.getMissingcars().containsKey(serverCar.getId())){
 						this.state.getMissingcars().remove(serverCar.getId());
 						this.state.getCarsfound().put(serverCar.getId(), serverCar);

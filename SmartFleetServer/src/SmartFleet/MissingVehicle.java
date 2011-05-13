@@ -30,14 +30,15 @@ public class MissingVehicle implements Runnable {
 						long time = Calendar.getInstance().getTimeInMillis();
 						if(time > sc.getTimeToUpdate()){
 							state.getMissingcars().put(sc.getId(), sc);
+							System.out.println("Car " + sc.getId() + " is missing!");
 							int lat = sc.getRoute().getRoute().getLast().getLat();
 							int lon = sc.getRoute().getRoute().getLast().getLon();
 							for(ServerStation ss : state.getStations().values()){
 								if(ss.getLat() == lat && ss.getLon() == lon){
 									try {
 										Socket	s = new Socket(ss.getIp(), ss.getPort());
-										ObjectOutputStream oi = new ObjectOutputStream(s.getOutputStream());
-										oi.writeObject(sc);
+										ObjectOutputStream oo = new ObjectOutputStream(s.getOutputStream());
+										oo.writeObject(sc);
 									} catch (UnknownHostException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
