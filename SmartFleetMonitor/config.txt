@@ -1,0 +1,5 @@
+##Central Server IP##
+194.210.228.199
+##Central Server Port##
+6799
+

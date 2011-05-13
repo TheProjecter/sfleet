@@ -73,10 +73,14 @@ public class DrawOverlay extends Overlay{
 		    if(this.sfm.isShowcars()){
 		    	for(ServerCar c : this.sfm.getCarlist().values())
 		    	{	
+		    		paint.setStrokeWidth(5);
 		    		projection.toPixels(new GeoPoint(c.getLat(), c.getLon()), point);
 		    		canvas.drawCircle(point.x, point.y, 5, paint);
 		    		
+		    		paint.setStrokeWidth(3);
+		    		
 		    		for(Flight f : c.getRoute().getRoute()){
+		    			point2 = new Point();
 		    			projection.toPixels(new GeoPoint(f.getLat(),
 		    											 f.getLon()),
 		    											 point2);

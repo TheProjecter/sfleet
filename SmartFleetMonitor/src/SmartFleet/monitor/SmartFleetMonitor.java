@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import structs.Flight;
-import structs.RWCar;
-import structs.Route;
 import structs.ServerCar;
 import structs.ServerStation;
 import android.app.AlertDialog;
@@ -45,12 +43,11 @@ public class SmartFleetMonitor extends MapActivity {
 	private double total_time = 0;
 	private double straightsum = 0;
 	
-	private String serverip = "169.254.247.246";
-	private int serverport = 6799;
+	private String serverip;
+	private int serverport;
 	
-	// Need handler for callbacks to the UI thread
 	final Handler mHandler = new Handler();
-	// Create runnable for posting
+
 	final Runnable mUpdateResults = new Runnable() {
 		public void run() {
 			mapView.invalidate();
@@ -64,7 +61,7 @@ public class SmartFleetMonitor extends MapActivity {
         
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
-        //this.loadConfiguration();
+        this.loadConfiguration();
         
 		this.setContentView(R.layout.main);
     	this.mapView = (MapView) findViewById(R.id.mapview);
@@ -93,7 +90,6 @@ public class SmartFleetMonitor extends MapActivity {
     	
     	int numberwaiting = 0;
     	double avgtime = s.getAvgwaittime() / 1000;
-    	HashMap<Integer, RWCar> carlist = s.getCarsDocked();
     	ArrayList<Flight> flist = s.getFlightqueue();
     	
     	for(Flight f : flist){
@@ -108,12 +104,6 @@ public class SmartFleetMonitor extends MapActivity {
     					   "Longitude: " + s.getLon()/1E6 + "\n\n" +
     					   "On Wait Clients: " + numberwaiting + "\n" +
     					   "Avg. Waiting Time: " + avgtime + " sec.");
-    	/*final CharSequence[] items = {"Red", "Green", "Blue"};
-    	builder.setItems(items, new DialogInterface.OnClickListener() {
-      	  public void onClick(DialogInterface dialog, int which) {
-      	    dialog.dismiss();
-      	  }
-      	});*/
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     	  public void onClick(DialogInterface dialog, int which) {
@@ -175,21 +165,20 @@ public class SmartFleetMonitor extends MapActivity {
     		strg += "Car" + i + " ";
     	}
     	
+    	Calendar c = Calendar.getInstance();
+    	c.setTimeInMillis(s.getInformationTime());
+    	
     	builder.setMessage("Number of Passenger: " + passengers + "\n" +
 				   		   "Battery: " + (int)((s.getBattery()/36000)*100) + "%\n\n" +
 				   		   "Latest cars seen: " + strg + "\n" +
-				   		   "Date of info: " + s.getInformationTime());
+				   		   "Date of info: " + c.get(Calendar.HOUR) +":"+ c.get(Calendar.MINUTE)+":"+c.get(Calendar.SECOND));
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     	  public void onClick(DialogInterface dialog, int which) {
     	    dialog.dismiss();
     	  }
     	});
-    	/*builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-    	  public void onClick(DialogInterface dialog, int which) {
-    	    dialog.dismiss();
-    	  }
-    	});*/
+    	
     	AlertDialog alert = builder.create();
     	alert.show();
 
@@ -207,23 +196,19 @@ public class SmartFleetMonitor extends MapActivity {
     	}
     	
     	builder.setMessage("Total Passengers: "+ this.total_people + "\n" +
-				   		   "Total Kms: " + String.format("%.2g%n",this.total_km) +"\n" +
-				   		   "Total Battery waste: " + (int)this.total_battery + "\n" +
-				   		   "Average time flying: " + String.format("%.2g%n", this.total_time/this.nflights) + "\n\n" +
+				   		   "Total Kms: " + String.format("%.5g",this.total_km) +"Km\n" +
+				   		   "Total Battery waste: " + (int)this.total_battery + "KW\n" +
+				   		   "Average time flying: \n" + String.format("%.2g", this.total_time/this.nflights) + "s\n" +
 				   		   "Number of Lost Vehicles: " + this.missinglist.size() + "\n" +
 				   		   "Lost Vehicles: " + missings + "\n\n" +
-				   		   "Distance to be travelled: " + this.straightsum);
+				   		   "Distance to be travelled: " + String.format("%.5g", (this.straightsum/1000)) + "Km");
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     	  public void onClick(DialogInterface dialog, int which) {
     	    dialog.dismiss();
     	  }
     	});
-    	/*builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-    	  public void onClick(DialogInterface dialog, int which) {
-    	    dialog.dismiss();
-    	  }
-    	});*/
+    	
     	AlertDialog alert = builder.create();
     	alert.show();
 
@@ -231,7 +216,6 @@ public class SmartFleetMonitor extends MapActivity {
     
 	@Override
 	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -347,14 +331,17 @@ public class SmartFleetMonitor extends MapActivity {
 		try {
 			 BufferedReader in = new BufferedReader(new FileReader("/mnt/sdcard/config.txt"));
 			 
+			 in.readLine();
 			 this.serverip = in.readLine();
+			 in.readLine();
 			 this.serverport = Integer.valueOf(in.readLine());
 			 
-			 Log.d("coisas", this.serverip);
-			 Log.d("cenas", "" + this.serverport);
+			 in.close();
+			 
+			 Log.d("SmartFleetMonitor", this.serverip);
+			 Log.d("SmartFleetMonitor", "" + this.serverport);
 			 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
