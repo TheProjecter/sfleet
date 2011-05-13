@@ -1,7 +1,7 @@
 package structs;
 
 import java.io.Serializable;
-import java.util.Calendar;
+import java.util.LinkedList;
 
 public class ServerCar implements Serializable{
 
@@ -28,6 +28,8 @@ public class ServerCar implements Serializable{
 	
 	private double velocity;
 	
+	private LinkedList<Integer> latestcarseen;
+	
 	public ServerCar(int id, int lat, int lon, int clock, double battery, Route route, long informationTime, long timeToUpdate, double velocity){
 		this.id = id;
 		this.lat = lat;
@@ -38,6 +40,7 @@ public class ServerCar implements Serializable{
 		this.informationTime = informationTime;
 		this.timeToUpdate = timeToUpdate;
 		this.setVelocity(velocity);
+		this.latestcarseen = new LinkedList<Integer>();
 	}
 
 	public int getId() {
@@ -110,5 +113,13 @@ public class ServerCar implements Serializable{
 
 	public double getVelocity() {
 		return velocity;
+	}
+
+	public void setLatestcarseen(LinkedList<Integer> latestcarseen) {
+		this.latestcarseen = latestcarseen;
+	}
+
+	public LinkedList<Integer> getLatestcarseen() {
+		return latestcarseen;
 	}
 }

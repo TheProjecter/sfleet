@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public class SmartFleetMonitor extends MapActivity {
 	private double total_time = 0;
 	private double straightsum = 0;
 	
-	private String serverip = "193.136.100.212";
+	private String serverip = "169.254.247.246";
 	private int serverport = 6799;
 	
 	// Need handler for callbacks to the UI thread
@@ -86,35 +87,7 @@ public class SmartFleetMonitor extends MapActivity {
         UpdateMonitor.setMainActivity(this, this.serverport, this.serverip);
 	    final Intent monitorListenerService = new Intent(this, UpdateMonitor.class);
 		startService(monitorListenerService);
-        
-        //POPULATE
-        ServerCar car0 = new ServerCar(0, 38765775, -9133007, 0, 36000, new Route(), 1111111, 111111, 10); 
-        ServerCar car1 = new ServerCar(1, 38765775, -9133007, 0, 36000, new Route(), 1111111, 111111, 10);
-        HashMap<Integer, RWCar> stationcarlist = new HashMap<Integer, RWCar>();
-        RWCar rwcar0 = new RWCar();
-        rwcar0.setId(car0.getId());
-        rwcar0.setBattery(car0.getBattery());
-        rwcar0.setClock(car0.getClock());
-        rwcar0.setLat(car0.getLat());
-        rwcar0.setLog(car0.getLon());
-        rwcar0.setVelocity(car0.getVelocity());
-        RWCar rwcar1 = new RWCar();
-        rwcar1.setId(car1.getId());
-        rwcar1.setBattery(car1.getBattery());
-        rwcar1.setClock(car1.getClock());
-        rwcar1.setLat(car1.getLat());
-        rwcar1.setLog(car1.getLon());
-        rwcar1.setVelocity(car1.getVelocity());
-        stationcarlist.put(0, rwcar0);
-        stationcarlist.put(1, rwcar1);
-        
-        ServerStation station2 = new ServerStation(2, 38765775, -9133007, 0, "", 23, stationcarlist, new ArrayList<Flight>());
-    
-        this.carlist.put(0, car0);
-        this.carlist.put(1, car1);
-        this.stationlist.put(2, station2);
-    
-    }
+}
 
     public void callStationInfo(ServerStation s){
     	
@@ -196,9 +169,16 @@ public class SmartFleetMonitor extends MapActivity {
     	for(Flight f : s.getRoute().getRoute()){
     		passengers += f.getNpassengers();
     	}
-    	builder.setMessage("Number of Passenger: " + passengers + "\n\n" +
-				   		   "Battery: " + (int)s.getBattery() + "\n\n");// +
-				   		  // "Battery: " + (int)s.getPercentageBattery() + "%\n");
+    	
+    	String strg = "";
+    	for(Integer i : s.getLatestcarseen()){
+    		strg += "Car" + i + " ";
+    	}
+    	
+    	builder.setMessage("Number of Passenger: " + passengers + "\n" +
+				   		   "Battery: " + (int)((s.getBattery()/36000)*100) + "%\n\n" +
+				   		   "Latest cars seen: " + strg + "\n" +
+				   		   "Date of info: " + s.getInformationTime());
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     	  public void onClick(DialogInterface dialog, int which) {
@@ -226,13 +206,13 @@ public class SmartFleetMonitor extends MapActivity {
     		missings += "Car" + sc.getId() + " ";
     	}
     	
-    	builder.setMessage("Total Passengers: "+ this.total_people + "\n\n" +
-				   		   "Total Kms: " + this.total_km +"\n\n" +
-				   		   "Total Battery waste: " + this.total_battery + "\n\n" +
-				   		   "Average time flying: " + (double)(this.total_time/this.nflights) + "\n\n" +
-				   		   "Number of Lost Vehicles: " + this.missinglist.size() + "\n\n" +
+    	builder.setMessage("Total Passengers: "+ this.total_people + "\n" +
+				   		   "Total Kms: " + String.format("%.2g%n",this.total_km) +"\n" +
+				   		   "Total Battery waste: " + (int)this.total_battery + "\n" +
+				   		   "Average time flying: " + String.format("%.2g%n", this.total_time/this.nflights) + "\n\n" +
+				   		   "Number of Lost Vehicles: " + this.missinglist.size() + "\n" +
 				   		   "Lost Vehicles: " + missings + "\n\n" +
-				   		   "Distance to be travelled: " + "\n\n");
+				   		   "Distance to be travelled: " + this.straightsum);
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     	  public void onClick(DialogInterface dialog, int which) {
