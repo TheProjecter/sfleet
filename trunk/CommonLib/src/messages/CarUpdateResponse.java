@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import structs.RWCar;
-import structs.RWStation;
 
 public class CarUpdateResponse implements Serializable {
 

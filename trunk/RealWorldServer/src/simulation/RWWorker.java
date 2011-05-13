@@ -34,7 +34,6 @@ public class RWWorker implements Runnable{
 		
 		String ip = socket.getInetAddress().toString();		
 		ip = (String) ip.subSequence(1, ip.length());
-		int port = socket.getPort();
 		
 		RWCar rwcar = new RWCar();
 		rwcar.setId(this.state.getSerial());
@@ -69,7 +68,6 @@ public class RWWorker implements Runnable{
 		
 		String ip = socket.getInetAddress().toString();		
 		ip = (String) ip.subSequence(1, ip.length());
-		int port = socket.getPort();
 		
 		RWStation station = new RWStation();
 		station.setId(this.state.getSerial());
