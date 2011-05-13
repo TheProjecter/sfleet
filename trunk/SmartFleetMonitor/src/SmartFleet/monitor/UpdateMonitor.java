@@ -51,10 +51,16 @@ private static SmartFleetMonitor MAIN_ACTIVITY;
 					Log.d("smartfleetmonitor", "Recieved a snapshot");
 					MAIN_ACTIVITY.setStationlist(snap.getStations());
 					MAIN_ACTIVITY.setCarlist(snap.getCars());
+					MAIN_ACTIVITY.setMissinglist(snap.getMissings());
+					MAIN_ACTIVITY.setNflights(snap.getNflights());
+					MAIN_ACTIVITY.setTotal_people(snap.getTotal_people());
+					MAIN_ACTIVITY.setTotal_battery(snap.getTotal_battery());
+					MAIN_ACTIVITY.setTotal_km(snap.getTotal_km());
+					MAIN_ACTIVITY.setTotal_time(snap.getTotal_time());
+					MAIN_ACTIVITY.setStraightsum(snap.getStraight_sum());
 					MAIN_ACTIVITY.mHandler.post(MAIN_ACTIVITY.mUpdateResults);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Log.d("SmartFleetMonitor", "Server is down...");
 				}catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
