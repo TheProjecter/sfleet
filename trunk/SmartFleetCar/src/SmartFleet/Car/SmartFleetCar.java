@@ -1,5 +1,7 @@
 package SmartFleet.Car;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
@@ -47,21 +49,22 @@ public class SmartFleetCar extends MapActivity {
 	
 	private int id = 0;
 	
-	private String realworldip = "169.254.8.254";
-	private int realworldport = 6798;
+	private String realworldip;
+	private int realworldport;
 	
-	private int myport = 5000;
-	private String myip = "169.254.8.254";
+	private int myport;
+	private String myip;
 
-	private String serverip = "169.254.8.254";
-	private int serverport = 6799;
+	private String serverip;
+	private int serverport;
+	
+	private GeoPoint mylocation;
+	private double velocity;
 	
 	private boolean atStation = true;
 
-	
-	// Need handler for callbacks to the UI thread
 	final Handler mHandler = new Handler();
-	// Create runnable for posting
+	
 	final Runnable mUpdateResults = new Runnable() {
 		public void run() {
 			updateUI();
@@ -93,22 +96,19 @@ public class SmartFleetCar extends MapActivity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-		GeoPoint IST = new GeoPoint(38736830, -9138181);
-		//GeoPoint TP = new GeoPoint(38736320, -9301917);
-		//GeoPoint AirPort = new GeoPoint(38765775, -9133007);
-
-		// mapView.setBuiltInZoomControls(true);
+		this.loadConfiguration();
+		
 		this.mapView.setSatellite(false);
 		this.mc.setZoom(16);
 		
-		RouteOverlay ro = new RouteOverlay(IST, 255);
-		this.myCar = new FlyingCar(this.mc, ro, this.mHandler,
-				this.mUpdateResults, this.mPassengersLeave);
-		this.myCar.setLocation(IST);
+		RouteOverlay ro = new RouteOverlay(this.mylocation, 255);
+		this.myCar = new FlyingCar(this.mc, ro, this.mHandler, this.mUpdateResults, this.mPassengersLeave);
+		this.myCar.setVelocity(this.velocity);
+		this.myCar.setLocation(this.mylocation);
 		
 		this.mapView.getOverlays().add(ro);
-		this.mc.setCenter(IST);
-		this.mc.animateTo(IST);
+		this.mc.setCenter(this.mylocation);
+		this.mc.animateTo(this.mylocation);
 			
 		CarDispatchService.setMainActivity(this, this.myport);
 	    final Intent CarDispatchService = new Intent(this, CarDispatchService.class);
@@ -253,7 +253,6 @@ public class SmartFleetCar extends MapActivity {
 				cr = (LoginResponse)oi.readObject();
 				s.close();
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -277,10 +276,8 @@ public class SmartFleetCar extends MapActivity {
 			}else
 				this.setAtStation(false);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	
@@ -306,19 +303,14 @@ public class SmartFleetCar extends MapActivity {
 			this.getMyCar().setNearStation(cur.isNearStation());
 			this.getMyCar().setCarsAt200(cur.getCarsAt200());
 			this.getMyCar().setCarsAt300(cur.getCarsAt300());
-						
-			//TODO processar o input do update
-			
+									
 			Log.d("CarUpdate", "Successfully updated.");
 			
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -335,10 +327,8 @@ public class SmartFleetCar extends MapActivity {
 			Log.d("CarSubscribe", "Successfully subbed.");
 			
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -374,13 +364,10 @@ public class SmartFleetCar extends MapActivity {
 			Log.d("CarUnSbuscribe", "Successfully unsubbed.");
 			
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -460,6 +447,66 @@ public class SmartFleetCar extends MapActivity {
 
 	public boolean isAtStation() {
 		return atStation;
+	}
+	
+	public void loadConfiguration(){
+		
+		try {
+			 BufferedReader in = new BufferedReader(new FileReader("/mnt/sdcard/config.txt"));
+			 
+			 in.readLine();
+			 this.serverip = in.readLine();
+			 in.readLine();
+			 this.serverport = Integer.valueOf(in.readLine());
+			 in.readLine();
+			 this.realworldip = in.readLine();
+			 in.readLine();
+			 this.realworldport = Integer.valueOf(in.readLine());
+			 in.readLine();
+			 this.myip = in.readLine();
+			 in.readLine();
+			 this.myport = Integer.valueOf(in.readLine());
+			 in.readLine();
+			 int lat = Integer.valueOf(in.readLine());
+			 in.readLine();
+			 int log = Integer.valueOf(in.readLine());
+			 this.mylocation = new GeoPoint(lat, log);
+			 in.readLine();
+			 this.velocity = Double.valueOf(in.readLine());
+			 
+			 in.close();
+			 
+			 Log.d("SmartFleetCar", this.serverip);
+			 Log.d("SmartFleetCar", "" + this.serverport);
+			 Log.d("SmartFleetCar", this.realworldip);
+			 Log.d("SmartFleetCar", "" + this.realworldport);
+			 Log.d("SmartFleetCar", this.myip);
+			 Log.d("SmartFleetCar", "" + this.myport);
+			 
+			 
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+
+	public void setMylocation(GeoPoint mylocation) {
+		this.mylocation = mylocation;
+	}
+
+	public GeoPoint getMylocation() {
+		return mylocation;
+	}
+
+	
+	public void setVelocity(double velocity) {
+		this.velocity = velocity;
+	}
+
+	
+	public double getVelocity() {
+		return velocity;
 	}
 	
 }

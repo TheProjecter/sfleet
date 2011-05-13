@@ -34,7 +34,6 @@ public class CarWorker implements Runnable{
 		try {
 			this.socket.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		this.sfc.getMyCar().addBattery(m.getCharge());
@@ -46,7 +45,6 @@ public class CarWorker implements Runnable{
 		try {
 			this.socket.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		if(car.getDistance() <= 200 && !heightOK(car.getHeight(), this.sfc.getMyCar().getHeight())){
@@ -64,7 +62,7 @@ public class CarWorker implements Runnable{
 	}
 	
 	private boolean heightOK(double height, double height2) {
-		// TODO Auto-generated method stub
+
 		double difference = Math.abs(height - height2);
 		
 		if(difference >= 100)
@@ -85,10 +83,8 @@ public class CarWorker implements Runnable{
 			packet = io.readObject(); 
 			
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

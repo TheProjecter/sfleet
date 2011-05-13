@@ -6,7 +6,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import structs.RWCar;
-import structs.RWStation;
 import structs.Route;
 import android.os.Handler;
 
@@ -54,7 +53,7 @@ public class FlyingCar extends TimerTask {
 
 		super();
 
-		this.velocity = 60;//10; // meters per second
+		this.velocity = 10; // meters per second
 		this.height = 0;
 
 		this.max_battery = 10 * 3600;
@@ -69,12 +68,6 @@ public class FlyingCar extends TimerTask {
 
 		this.timer = new Timer("Realtimer");
 		this.timer.scheduleAtFixedRate(this, 0, 1000);
-		
-		//this.stations = new HashMap<Integer, Info>();
-		//this.cars = new HashMap<Integer, Info>();
-		
-		//this.flight = null;
-		//this.port = 0;
 		
 		this.carsAt200 = new ArrayList<RWCar>();
 		
@@ -264,10 +257,6 @@ public class FlyingCar extends TimerTask {
 
 			xv *= 0.000011;
 			yv *= 0.000009;
-
-			// For speed up the cars uncomment this...
-			// xv *= 100;
-			// yv *= 100;
 
 			int logd = (int) (this.myLocation.getLongitudeE6() + (xv * 1E6));
 			int latd = (int) (this.myLocation.getLatitudeE6() + (yv * 1E6));
