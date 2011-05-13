@@ -159,7 +159,6 @@ public class SmartFleetMonitor extends MapActivity {
     				public void onClick(DialogInterface dialog, int which) {
     					CharSequence s = items[which];
     					int i = Integer.parseInt(""+s.charAt(3));
-    					Log.d("cois", "" + i);
     					ServerCar sc = smf.carlist.get(i);
     					smf.callCarInfo(sc);
     				}
@@ -186,6 +185,33 @@ public class SmartFleetMonitor extends MapActivity {
     	builder.setMessage("Number of Passenger: " + passengers + "\n\n" +
 				   		   "Battery: " + (int)s.getBattery() + "\n\n");// +
 				   		  // "Battery: " + (int)s.getPercentageBattery() + "%\n");
+    	
+    	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+    	  public void onClick(DialogInterface dialog, int which) {
+    	    dialog.dismiss();
+    	  }
+    	});
+    	/*builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+    	  public void onClick(DialogInterface dialog, int which) {
+    	    dialog.dismiss();
+    	  }
+    	});*/
+    	AlertDialog alert = builder.create();
+    	alert.show();
+
+    }
+    
+    public void callOverallInfo(){
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setCancelable(true);
+    	builder.setTitle("Overall Statistics");
+    	builder.setInverseBackgroundForced(false);
+    	builder.setMessage("Total Passengers: " + "\n\n" +
+				   		   "Total Kms: " + "\n\n" +
+				   		   "Total Battery waste: " + "\n\n" +
+				   		   "Average time flying: " + "\n\n" +
+				   		   "Lost Vehicles: " + "\n\n" +
+				   		   "Distance to be travelled: " + "\n\n");
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     	  public void onClick(DialogInterface dialog, int which) {
@@ -248,6 +274,22 @@ public class SmartFleetMonitor extends MapActivity {
 
 	public boolean isShowstations() {
 		return showstations;
+	}
+
+	public void setServerip(String serverip) {
+		this.serverip = serverip;
+	}
+
+	public String getServerip() {
+		return serverip;
+	}
+
+	public void setServerport(int serverport) {
+		this.serverport = serverport;
+	}
+
+	public int getServerport() {
+		return serverport;
 	}
 	
 	
