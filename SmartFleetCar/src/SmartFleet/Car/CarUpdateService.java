@@ -33,7 +33,13 @@ public class CarUpdateService extends Service{
 				
 				this.height = this.sfc.getMyCar().getHeight();
 				
-				if(this.height > 0){
+				if (this.height == 0 && !this.sfc.isAtStation()){
+					if(!this.subbed){
+						this.sfc.subscribeRealWorld();
+						this.subbed = true;
+					}					
+				}
+				else if(this.height > 0){
 					if(!this.subbed){
 						this.sfc.subscribeRealWorld();
 						this.subbed = true;
@@ -44,8 +50,7 @@ public class CarUpdateService extends Service{
 				}else if (this.height == 0 && this.subbed == true){
 					this.sfc.unsubscribeRealWorld();
 					this.subbed = false;
-				}
-				
+				}				
 			}
 			
 		}, 0, 1000);

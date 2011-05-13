@@ -47,14 +47,16 @@ public class SmartFleetCar extends MapActivity {
 	
 	private int id = 0;
 	
-	private String realworldip = "194.210.228.215";
+	private String realworldip = "169.254.8.254";
 	private int realworldport = 6798;
 	
-	private int myport = 5002;
-	private String myip = "194.210.228.215";
+	private int myport = 5000;
+	private String myip = "169.254.8.254";
 
-	private String serverip = "194.210.228.215";
+	private String serverip = "169.254.8.254";
 	private int serverport = 6799;
+	
+	private boolean atStation = true;
 
 	
 	// Need handler for callbacks to the UI thread
@@ -258,6 +260,7 @@ public class SmartFleetCar extends MapActivity {
 			this.id = cr.getId();
 			
 			if(cr.getStation() != null){
+				this.setAtStation(true);
 				Socket s2 = new Socket(cr.getStation().getIp(), cr.getStation().getPort());
 				CarAdvertisement ca = new CarAdvertisement();
 				RWCar car = new RWCar();
@@ -271,7 +274,8 @@ public class SmartFleetCar extends MapActivity {
 				oo2.writeObject(ca);
 
 				Log.d("smartfleet", "Successfully logged at Real World Server. my port:" + s.getLocalPort());
-			}
+			}else
+				this.setAtStation(false);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -351,6 +355,7 @@ public class SmartFleetCar extends MapActivity {
 			s.close();
 			
 			if(csa.getStation() != null){
+				this.setAtStation(true);
 				Socket s2 = new Socket(csa.getStation().getIp(), csa.getStation().getPort());
 				CarAdvertisement ca = new CarAdvertisement();
 				RWCar car = new RWCar();
@@ -362,7 +367,8 @@ public class SmartFleetCar extends MapActivity {
 
 				ObjectOutput oo2 = new ObjectOutputStream(s2.getOutputStream());
 				oo2.writeObject(ca);
-			}
+			}else
+				this.setAtStation(false);
 			
 			Log.d("CarUnSbuscribe", "Successfully unsubbed.");
 			
@@ -445,6 +451,14 @@ public class SmartFleetCar extends MapActivity {
 		double dist = Math.sqrt(Math.pow((lat1 - lat2), 2) + Math.pow((lon1 - lon2), 2));
 		
 		return dist;
+	}
+
+	public void setAtStation(boolean atStation) {
+		this.atStation = atStation;
+	}
+
+	public boolean isAtStation() {
+		return atStation;
 	}
 	
 }

@@ -42,7 +42,10 @@ private static SmartFleetCar MAIN_ACTIVITY;
 				Socket s = null;
 				if(!this.sfc.getMyCar().getCarsAt300().isEmpty()){
 					for(RWCar car : this.sfc.getMyCar().getCarsAt300()){				
-						try {							
+						try {	
+							if(s != null)
+								s.close();
+							
 							s = new Socket(car.getIp(), car.getPort());
 							
 							Log.d("smartfleet", "Comunicating with a car at 300.");
@@ -72,6 +75,8 @@ private static SmartFleetCar MAIN_ACTIVITY;
 				if(!this.sfc.getMyCar().getCarsAt200().isEmpty()){
 					for(RWCar car : this.sfc.getMyCar().getCarsAt200()){				
 						try {
+							if(s != null)
+								s.close();
 							
 							s = new Socket(car.getIp(), car.getPort());
 							
@@ -101,6 +106,9 @@ private static SmartFleetCar MAIN_ACTIVITY;
 				}
 				if(this.sfc.getMyCar().isNearStation()){
 					try {
+						
+						if(s != null)
+							s.close();
 						
 						s = new Socket(this.sfc.getServerip(), this.sfc.getServerport());
 
