@@ -1,9 +1,7 @@
 package SmartFleet.monitor;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +14,7 @@ import structs.ServerCar;
 import structs.ServerStation;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -37,8 +36,15 @@ public class SmartFleetMonitor extends MapActivity {
 	
 	private Map<Integer, ServerStation> stationlist;
 	private Map<Integer, ServerCar> carlist;
+	private Map<Integer, ServerCar> missinglist;
+	private int total_people = 0;
+	private double total_battery = 0;	
+	private double total_km = 0;
+	private int nflights = 0;
+	private double total_time = 0;
+	private double straightsum = 0;
 	
-	private String serverip = "194.210.228.38";
+	private String serverip = "193.136.100.212";
 	private int serverport = 6799;
 	
 	// Need handler for callbacks to the UI thread
@@ -57,7 +63,7 @@ public class SmartFleetMonitor extends MapActivity {
         
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
-        this.loadConfiguration();
+        //this.loadConfiguration();
         
 		this.setContentView(R.layout.main);
     	this.mapView = (MapView) findViewById(R.id.mapview);
@@ -67,7 +73,8 @@ public class SmartFleetMonitor extends MapActivity {
     	
     	this.stationlist = new HashMap<Integer, ServerStation>();
     	this.carlist = new HashMap<Integer, ServerCar>();  
-       
+    	this.missinglist = new HashMap<Integer, ServerCar>();  
+    	
     	this.mapc = mapView.getController();
     	//mapView.setBuiltInZoomControls(true);
 		this.mapView.setSatellite(false);
@@ -76,9 +83,9 @@ public class SmartFleetMonitor extends MapActivity {
 		this.mapc.animateTo(new GeoPoint(38736830, -9138181));
         this.mapView.getOverlays().add(new DrawOverlay(this));
         
-        //UpdateMonitor.setMainActivity(this, this.serverport, this.serverip);
-	    //final Intent monitorListenerService = new Intent(this, UpdateMonitor.class);
-		//startService(monitorListenerService);
+        UpdateMonitor.setMainActivity(this, this.serverport, this.serverip);
+	    final Intent monitorListenerService = new Intent(this, UpdateMonitor.class);
+		startService(monitorListenerService);
         
         //POPULATE
         ServerCar car0 = new ServerCar(0, 38765775, -9133007, 0, 36000, new Route(), 1111111, 111111, 10); 
@@ -208,16 +215,23 @@ public class SmartFleetMonitor extends MapActivity {
 
     }
     
-    public void callOverallInfo(){
+    public void callOverallInfo(View v){
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setCancelable(true);
     	builder.setTitle("Overall Statistics");
     	builder.setInverseBackgroundForced(false);
-    	builder.setMessage("Total Passengers: " + "\n\n" +
-				   		   "Total Kms: " + "\n\n" +
-				   		   "Total Battery waste: " + "\n\n" +
-				   		   "Average time flying: " + "\n\n" +
-				   		   "Lost Vehicles: " + "\n\n" +
+    	
+    	String missings = "";
+    	for(ServerCar sc : this.missinglist.values()){
+    		missings += "Car" + sc.getId() + " ";
+    	}
+    	
+    	builder.setMessage("Total Passengers: "+ this.total_people + "\n\n" +
+				   		   "Total Kms: " + this.total_km +"\n\n" +
+				   		   "Total Battery waste: " + this.total_battery + "\n\n" +
+				   		   "Average time flying: " + (double)(this.total_time/this.nflights) + "\n\n" +
+				   		   "Number of Lost Vehicles: " + this.missinglist.size() + "\n\n" +
+				   		   "Lost Vehicles: " + missings + "\n\n" +
 				   		   "Distance to be travelled: " + "\n\n");
     	
     	builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -299,6 +313,55 @@ public class SmartFleetMonitor extends MapActivity {
 		return serverport;
 	}
 	
+	
+	public Map<Integer, ServerCar> getMissinglist() {
+		return missinglist;
+	}
+
+	public void setMissinglist(Map<Integer, ServerCar> missinglist) {
+		this.missinglist = missinglist;
+	}
+
+	public int getTotal_people() {
+		return total_people;
+	}
+	
+	public void setTotal_people(int totalPeople) {
+		total_people = totalPeople;
+	}
+
+	public double getTotal_battery() {
+		return total_battery;
+	}
+
+	public void setTotal_battery(double totalBattery) {
+		total_battery = totalBattery;
+	}
+
+	public double getTotal_km() {
+		return total_km;
+	}
+
+	public void setTotal_km(double totalKm) {
+		total_km = totalKm;
+	}
+
+	public int getNflights() {
+		return nflights;
+	}
+
+	public void setNflights(int nflights) {
+		this.nflights = nflights;
+	}
+
+	public double getTotal_time() {
+		return total_time;
+	}
+
+	public void setTotal_time(double totalTime) {
+		total_time = totalTime;
+	}
+
 	public void loadConfiguration(){
 		
 		try {
@@ -316,6 +379,14 @@ public class SmartFleetMonitor extends MapActivity {
 		}
 		
 		
+	}
+
+	public void setStraightsum(double straightsum) {
+		this.straightsum = straightsum;
+	}
+
+	public double getStraightsum() {
+		return straightsum;
 	}
 	
 	

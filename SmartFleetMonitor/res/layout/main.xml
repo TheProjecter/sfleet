@@ -13,8 +13,9 @@
     	</TableRow>
         <TableRow android:id="@+id/tableRow2" android:layout_width="wrap_content" android:layout_height="wrap_content">
             <LinearLayout android:id="@+id/linearLayout1" android:layout_width="wrap_content" android:layout_height="wrap_content">
-                <Button android:text="Cars" android:onClick="ShowCars" android:layout_height="wrap_content" android:id="@+id/button1" android:layout_width="150dip"></Button>
-                <Button android:text="Stations" android:onClick="ShowStations" android:layout_height="wrap_content" android:id="@+id/button2" android:layout_width="150dip"></Button>
+                <Button android:text="Cars" android:onClick="ShowCars" android:layout_height="wrap_content" android:id="@+id/button1" android:layout_width="100dip"></Button>
+                <Button android:text="Stations" android:onClick="ShowStations" android:layout_height="wrap_content" android:id="@+id/button2" android:layout_width="100dip"></Button>
+                <Button android:text="Statistics" android:onClick="callOverallInfo" android:layout_height="wrap_content" android:id="@+id/button3" android:layout_width="100dip"></Button>
             </LinearLayout>
         </TableRow>
     </TableLayout>
