@@ -290,7 +290,6 @@ public class FlyingCar extends TimerTask {
 				this.battery = 0;
 
 			this.myLocation = new GeoPoint(latd, logd);
-
 			this.mapcontrol.setCenter(this.myLocation);
 			this.mapcontrol.animateTo(this.myLocation);
 
