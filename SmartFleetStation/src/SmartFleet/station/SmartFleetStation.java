@@ -1,5 +1,7 @@
 package SmartFleet.station;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInput;
@@ -55,103 +57,84 @@ public class SmartFleetStation extends Activity {
 	private boolean	booking	= false;
 	private HashMap<Integer, RWCar>	carsDocked;
 	private HashMap<Integer, RWCar>	carsToCharge;
-	
-	private LinkedList<RWCar>			clist			= new LinkedList<RWCar>();
 
-	private Flight						currentflight;
-	
-	private int							id				= 0;
-	
-	private String						myip			= "169.254.247.246";
-	private int							myport			= 5001;
-	
-	private FlyingStation				myStation;
-	private String						realworldip		= "169.254.8.254";
+	private LinkedList<RWCar> clist	= new LinkedList<RWCar>();
 
-	private int							realworldport	= 6798;
-	private LinkedList<RouteSending>	rslist			= new LinkedList<RouteSending>();
-	
-	private String						serverip		= "169.254.8.254";
-	
-	private int							serverport		= 6799;
-	final Runnable						mCallPassengers	= new Runnable() {
-															
-															public void run() {
-																
-																callPassengers();
-															}
-														};
-	
-	// Need handler for callbacks to the UI thread
-	final Handler						mHandler		= new Handler();
-	// Create runnable for posting
-	final Runnable						mUpdateResults	= new Runnable() {
-															
-															public void run() {
+	private Flight currentflight;
 
-																updateUI();
-															}
-														};
+	private int id = 0;
+
+	private String myip;
+	private int	myport;
+	
+	private String	realworldip;
+	private int	realworldport;
+	
+	private String	serverip;
+	private int	serverport;
+
+	private FlyingStation myStation;
+	
+	private LinkedList<RouteSending> rslist	= new LinkedList<RouteSending>();
+	
+	private GeoPoint mylocation;
+	
+	
+	final Handler mHandler = new Handler();
+	
+	final Runnable	mUpdateResults = new Runnable() {
+		public void run() {
+			updateUI();
+		}
+	};
+	
+	final Runnable mCallPassengers	= new Runnable() {
+		public void run() {
+			callPassengers();
+		}
+	};
+
 	
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onCreate(Bundle savedInstanceState) {
 
-		if (resultCode == RESULT_CANCELED)
-			return;
+		super.onCreate(savedInstanceState);
 		
-		GeoPoint gp = new GeoPoint(data.getIntExtra("lat", 0), data.getIntExtra("log", 0));
-		this.currentflight.setLat(gp.getLatitudeE6());
-		this.currentflight.setLon(gp.getLongitudeE6());
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
-		String locationname = "UNDEFINED";
+		this.loadConfiguration();
 		
-		double lat = gp.getLatitudeE6() / 1E6;
-		double log = gp.getLongitudeE6() / 1E6;
+		this.myStation = new FlyingStation(this.mylocation);
+		this.setCarsDocked(new HashMap<Integer, RWCar>());
+		this.setCarsToCharge(new HashMap<Integer, RWCar>());
 		
-		HttpURLConnection connection = null;
-		URL serverAddress = null;
+		Station me = new Station(this.mylocation.getLatitudeE6(), this.mylocation.getLongitudeE6());
+		this.myStation.getStations().add(me);
 		
-		try {
-			// build the URL using the latitude & longitude you want to lookup
-			// NOTE: I chose XML return format here but you can choose something else
-			serverAddress = new URL("http://maps.google.com/maps/geo?q=" + Double.toString(lat) + "," + Double.toString(log) + "&output=xml&oe=utf8&sensor=true&key=" + R.string.ApiMapKey);
-			// set up out communications stuff
-			connection = null;
-			
-			Log.d("CUCU", Double.toString(lat));
-			Log.d("CUCU", Double.toString(log));
-			// Set up the initial connection
-			connection = (HttpURLConnection) serverAddress.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setDoOutput(true);
-			connection.setReadTimeout(10000);
-			
-			connection.connect();
-			
-			try {
-				InputStreamReader isr = new InputStreamReader(connection.getInputStream());
-				InputSource source = new InputSource(isr);
-				SAXParserFactory factory = SAXParserFactory.newInstance();
-				SAXParser parser = factory.newSAXParser();
-				XMLReader xr = parser.getXMLReader();
-				GoogleReverseGeocodeXmlHandler handler = new GoogleReverseGeocodeXmlHandler();
-				
-				xr.setContentHandler(handler);
-				xr.parse(source);
-				
-				locationname = handler.getStreetName();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+		this.setContentView(R.layout.main);
+		this.mHandler.post(this.mUpdateResults);
 		
-		this.currentflight.setDestination(locationname);
+		StationDispatchService.setMainActivity(this, this.myport);
+		final Intent dispatcher = new Intent(this, StationDispatchService.class);
+		startService(dispatcher);
+		
+		RouteDispatchService.setMainActivity(this);
+		final Intent rdispatcher = new Intent(this, RouteDispatchService.class);
+		startService(rdispatcher);
+		
+		ChargingService.setMainActivity(this);
+		final Intent chargings = new Intent(this, ChargingService.class);
+		startService(chargings);
+		
+		UpdateCentralServerService.setMainActivity(this);
+		final Intent ucss = new Intent(this, UpdateCentralServerService.class);
+		startService(ucss);
+		
+		this.registerOnRealWorld();
+		
 	}
 	
 	public void bookCancel(View V) {
-
 		this.currentflight = null;
 		this.mHandler.post(this.mUpdateResults);
 		this.setContentView(R.layout.main);
@@ -191,9 +174,6 @@ public class SmartFleetStation extends Activity {
 	
 	public void callPassengers() {
 
-		// if(this.clist.isEmpty() || this.rslist.isEmpty())
-		// return;
-		
 		final RWCar car = this.clist.removeFirst();
 		final RouteSending rs = this.rslist.removeFirst();
 		
@@ -206,7 +186,6 @@ public class SmartFleetStation extends Activity {
 			}
 		}
 		
-		// CHAMA PASSAGEIROS PARA O CARRO
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(partiesToCall);
 		builder.setCancelable(false);
@@ -224,10 +203,8 @@ public class SmartFleetStation extends Activity {
 					ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
 					oo.writeObject(rss);
 				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				dialog.cancel();
@@ -339,6 +316,75 @@ public class SmartFleetStation extends Activity {
 		this.mHandler.post(this.mCallPassengers);
 	}
 	
+	public void executeAndUpdateCharge() {
+
+		List<Integer> l = new ArrayList<Integer>();
+		for (RWCar c : this.getCarsToCharge().values()) {
+			if (c.getPercentageBattery() == 100 || !this.getCarsDocked().containsKey(c.getId()))
+				l.add(c.getId());
+		}
+		for (int i : l) {
+			this.getCarsToCharge().remove(i);
+		}
+		
+		HashMap<Integer, Double> carbatcharge = new HashMap<Integer, Double>();
+		for (RWCar c : this.getCarsDocked().values()) {
+			if (c.getPercentageBattery() < 100 && !this.getCarsToCharge().containsKey(c.getId()))
+				carbatcharge.put(c.getId(), c.getPercentageBattery());
+		}
+		
+		int min1id = -1;
+		double min1per = 200;
+		int min2id = -1;
+		
+		for (Entry<Integer, Double> e : carbatcharge.entrySet()) {
+			if (e.getValue() < min1per) {
+				min2id = min1id;
+				min1id = e.getKey();
+				min1per = e.getValue();
+			}
+		}
+		
+		if (this.getCarsToCharge().size() < 1) {
+			if (min1id != -1)
+				this.getCarsToCharge().put(min1id, this.getCarsDocked().get(min1id));
+			if (min2id != -1)
+				this.getCarsToCharge().put(min2id, this.getCarsDocked().get(min2id));
+		}
+		else if (this.getCarsToCharge().size() < 2) {
+			if (min1id != -1)
+				this.getCarsToCharge().put(min1id, this.getCarsDocked().get(min1id));
+		}
+		
+		for (RWCar c : this.getCarsToCharge().values()) {
+			Log.d("smartfleet", "Trying to charge car " + c.getId());
+			ChargeMessage cm = new ChargeMessage();
+			c.setBattery(c.getBattery() + cm.getCharge());
+			try {
+				Socket s = new Socket(c.getIp(), c.getPort());
+				ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
+				oo.writeObject(cm);
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	public double findDistance(double lat1, double lon1, double lat2, double lon2) {
+
+		lat1 /= (0.000009 * 1E6);
+		lon1 /= (0.000011 * 1E6);
+		
+		lat2 /= (0.000009 * 1E6);
+		lon2 /= (0.000011 * 1E6);
+		
+		double dist = Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lon1 - lon2, 2));
+		return dist;
+	}
+	
 	public void findMissingVehicle(RWCar car){
 		if (car != null){
 			ServerCar sc = this.getMyStation().getMissingcars().get(0);
@@ -401,77 +447,6 @@ public class SmartFleetStation extends Activity {
 				e.printStackTrace();
 			}
 		}
-	}
-	
-	public void executeAndUpdateCharge() {
-
-		List<Integer> l = new ArrayList<Integer>();
-		for (RWCar c : this.getCarsToCharge().values()) {
-			if (c.getPercentageBattery() == 100 || !this.getCarsDocked().containsKey(c.getId()))
-				l.add(c.getId());
-		}
-		for (int i : l) {
-			this.getCarsToCharge().remove(i);
-		}
-		
-		HashMap<Integer, Double> carbatcharge = new HashMap<Integer, Double>();
-		for (RWCar c : this.getCarsDocked().values()) {
-			if (c.getPercentageBattery() < 100 && !this.getCarsToCharge().containsKey(c.getId()))
-				carbatcharge.put(c.getId(), c.getPercentageBattery());
-		}
-		
-		int min1id = -1;
-		double min1per = 200;
-		int min2id = -1;
-		
-		for (Entry<Integer, Double> e : carbatcharge.entrySet()) {
-			if (e.getValue() < min1per) {
-				min2id = min1id;
-				min1id = e.getKey();
-				min1per = e.getValue();
-			}
-		}
-		
-		if (this.getCarsToCharge().size() < 1) {
-			if (min1id != -1)
-				this.getCarsToCharge().put(min1id, this.getCarsDocked().get(min1id));
-			if (min2id != -1)
-				this.getCarsToCharge().put(min2id, this.getCarsDocked().get(min2id));
-		}
-		else if (this.getCarsToCharge().size() < 2) {
-			if (min1id != -1)
-				this.getCarsToCharge().put(min1id, this.getCarsDocked().get(min1id));
-		}
-		
-		for (RWCar c : this.getCarsToCharge().values()) {
-			Log.d("smartfleet", "Trying to charge car " + c.getId());
-			ChargeMessage cm = new ChargeMessage();
-			c.setBattery(c.getBattery() + cm.getCharge());
-			try {
-				Socket s = new Socket(c.getIp(), c.getPort());
-				ObjectOutput oo = new ObjectOutputStream(s.getOutputStream());
-				oo.writeObject(cm);
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-	}
-	
-	public double findDistance(double lat1, double lon1, double lat2, double lon2) {
-
-		lat1 /= (0.000009 * 1E6);
-		lon1 /= (0.000011 * 1E6);
-		
-		lat2 /= (0.000009 * 1E6);
-		lon2 /= (0.000011 * 1E6);
-		
-		double dist = Math.sqrt(Math.pow(lat1 - lat2, 2) + Math.pow(lon1 - lon2, 2));
-		return dist;
 	}
 	
 	public double getBatteryForRoute(Route r) {
@@ -602,6 +577,46 @@ public class SmartFleetStation extends Activity {
 		this.booking = true;
 	}
 	
+	public void loadConfiguration(){
+			
+			try {
+				 BufferedReader in = new BufferedReader(new FileReader("/mnt/sdcard/config.txt"));
+				 
+				 in.readLine();
+				 this.serverip = in.readLine();
+				 in.readLine();
+				 this.serverport = Integer.valueOf(in.readLine());
+				 in.readLine();
+				 this.realworldip = in.readLine();
+				 in.readLine();
+				 this.realworldport = Integer.valueOf(in.readLine());
+				 in.readLine();
+				 this.myip = in.readLine();
+				 in.readLine();
+				 this.myport = Integer.valueOf(in.readLine());
+				 in.readLine();
+				 int lat = Integer.valueOf(in.readLine());
+				 in.readLine();
+				 int log = Integer.valueOf(in.readLine());
+				 this.mylocation = new GeoPoint(lat, log);
+				 
+				 in.close();
+				 
+				 Log.d("SmartFleetCar", this.serverip);
+				 Log.d("SmartFleetCar", "" + this.serverport);
+				 Log.d("SmartFleetCar", this.realworldip);
+				 Log.d("SmartFleetCar", "" + this.realworldport);
+				 Log.d("SmartFleetCar", this.myip);
+				 Log.d("SmartFleetCar", "" + this.myport);
+				 
+				 
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			
+		}
+	
 	public void loadSelectDestination(View V) {
 
 		SmartFleetDest.setMainActivity(this);
@@ -610,46 +625,58 @@ public class SmartFleetStation extends Activity {
 	}
 	
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		super.onCreate(savedInstanceState);
+		if (resultCode == RESULT_CANCELED)
+			return;
 		
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		GeoPoint gp = new GeoPoint(data.getIntExtra("lat", 0), data.getIntExtra("log", 0));
+		this.currentflight.setLat(gp.getLatitudeE6());
+		this.currentflight.setLon(gp.getLongitudeE6());
 		
-		GeoPoint me = new GeoPoint(38736830, -9138181);
+		String locationname = "UNDEFINED";
 		
-		// GeoPoint IST = new GeoPoint(38736830, -9138181);
-		// GeoPoint TP = new GeoPoint(38736320, -9301917);
-		GeoPoint AirPort = new GeoPoint(38765775, -9133007);
+		double lat = gp.getLatitudeE6() / 1E6;
+		double log = gp.getLongitudeE6() / 1E6;
 		
-		this.myStation = new FlyingStation(me);
-		this.setCarsDocked(new HashMap<Integer, RWCar>());
-		this.setCarsToCharge(new HashMap<Integer, RWCar>());
+		HttpURLConnection connection = null;
+		URL serverAddress = null;
 		
-		Station mes = new Station(me.getLatitudeE6(), me.getLongitudeE6());
-		this.myStation.getStations().add(mes);
+		try {
+			// build the URL using the latitude & longitude you want to lookup
+			// NOTE: I chose XML return format here but you can choose something else
+			serverAddress = new URL("http://maps.google.com/maps/geo?q=" + Double.toString(lat) + "," + Double.toString(log) + "&output=xml&oe=utf8&sensor=true&key=" + R.string.ApiMapKey);
+			// set up out communications stuff
+			connection = null;
+			
+			// Set up the initial connection
+			connection = (HttpURLConnection) serverAddress.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setDoOutput(true);
+			connection.setReadTimeout(10000);
+			
+			connection.connect();
+			
+			try {
+				InputStreamReader isr = new InputStreamReader(connection.getInputStream());
+				InputSource source = new InputSource(isr);
+				SAXParserFactory factory = SAXParserFactory.newInstance();
+				SAXParser parser = factory.newSAXParser();
+				XMLReader xr = parser.getXMLReader();
+				GoogleReverseGeocodeXmlHandler handler = new GoogleReverseGeocodeXmlHandler();
+				
+				xr.setContentHandler(handler);
+				xr.parse(source);
+				
+				locationname = handler.getStreetName();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 		
-		this.setContentView(R.layout.main);
-		this.mHandler.post(this.mUpdateResults);
-		
-		StationDispatchService.setMainActivity(this, this.myport);
-		final Intent dispatcher = new Intent(this, StationDispatchService.class);
-		startService(dispatcher);
-		
-		RouteDispatchService.setMainActivity(this);
-		final Intent rdispatcher = new Intent(this, RouteDispatchService.class);
-		startService(rdispatcher);
-		
-		ChargingService.setMainActivity(this);
-		final Intent chargings = new Intent(this, ChargingService.class);
-		startService(chargings);
-		
-		UpdateCentralServerService.setMainActivity(this);
-		final Intent ucss = new Intent(this, UpdateCentralServerService.class);
-		startService(ucss);
-		
-		this.registerOnRealWorld();
-		
+		this.currentflight.setDestination(locationname);
 	}
 
 	public void registerOnRealWorld() {
@@ -670,7 +697,6 @@ public class SmartFleetStation extends Activity {
 				cr = (LoginResponse) oi.readObject();
 				s.close();
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -679,10 +705,8 @@ public class SmartFleetStation extends Activity {
 			Log.d("smartfleet", "Successfully logged at Real World Server.");
 			
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -757,14 +781,16 @@ public class SmartFleetStation extends Activity {
 
 		if (this.booking)
 			return;
-		
+
 		ListView lv = (ListView) this.findViewById(R.id.WaitingList);
 		ArrayList<String> a = new ArrayList<String>();
 		for (Flight f : this.myStation.getFlightQueue()) {
-			a.add(f.getPartyname() + "-" + f.getNpassengers() + "-" + f.getDestination());
+			a.add(f.getPartyname() + "-" + f.getNpassengers() + "-"
+					+ f.getDestination());
 		}
-		lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, a));
-		
+		lv.setAdapter(new ArrayAdapter<String>(this,
+				android.R.layout.simple_list_item_1, a));
+
 	}
 	
 }

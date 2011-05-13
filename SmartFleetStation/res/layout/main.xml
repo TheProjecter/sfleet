@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-    <TableRow android:id="@+id/tableRow1" android:layout_width="fill_parent" android:layout_height="wrap_content">
-    </TableRow>
-    <Button android:text="Book a Flight" android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/button1" android:onClick="loadBookFlight"></Button>
-    <TextView android:text="Flight Queue" android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
-    <ListView android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/WaitingList"></ListView>
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<TableRow android:id="@+id/tableRow1" android:layout_width="fill_parent"
+		android:layout_height="wrap_content">
+	</TableRow>
+	<Button android:text="Book a Flight" android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:id="@+id/button1"
+		android:onClick="loadBookFlight"></Button>
+	<TextView android:text="Flight Queue" android:id="@+id/textView1"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
+	<ListView android:layout_height="wrap_content"
+		android:layout_width="match_parent" android:id="@+id/WaitingList"></ListView>
 </TableLayout>
