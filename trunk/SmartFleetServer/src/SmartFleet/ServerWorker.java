@@ -92,7 +92,8 @@ public class ServerWorker implements Runnable {
 					if(!packet.getGossip().isEmpty()){
 						serverCar.getLatestcarseen().clear();
 						for(RWCar rc : packet.getGossip()){
-							serverCar.getLatestcarseen().add(rc.getId());
+							if(rc.getId() != serverCar.getId())
+								serverCar.getLatestcarseen().add(rc.getId());
 						}
 					}
 					

@@ -23,15 +23,11 @@ public class Server {
 			if (file.exists()) { // existe ficheiro com estado
 				FileInputStream fin = new FileInputStream(file);
 				ObjectInputStream in = new ObjectInputStream(fin);
-				try {
-					state = (ServerState) in.readObject();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				state = (ServerState)in.readObject();
 				fin.close();
+				
 				//state = new ServerState();
-				// TODO: descomentar e retiorar a linha anterior
+				// descomentar e retiorar a linha anterior para n‹o ter persistencia...
 				
 			}
 			else {
@@ -46,23 +42,11 @@ public class Server {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 		
-		// POPULATE MONITOR FOR TESTING
-		/* StationMessage IST = new StationMessage(0, 38736830, -9138181, 3, 2); StationMessage TP = new StationMessage(1, 38736320, -9301917, 10, 10); StationMessage AIRPORT = new StationMessage(2, 38765775, -9133007, 40, 30);
-		 * 
-		 * CarMessage car1 = new CarMessage(4, 38736320, -9301917, 26000); CarMessage car2 = new CarMessage(8, 38765775, -9133007, 4000);
-		 * 
-		 * state.getNewcars().put(car1.getId(), car1); state.getNewcars().put(car2.getId(), car2);
-		 * 
-		 * state.getNewstations().put(IST.getId(), IST); state.getNewstations().put(TP.getId(), TP); state.getNewstations().put(AIRPORT.getId(), AIRPORT);
-		 * 
-		 * car1.setBattery(20000); car1.setLat(38736830); car1.setLon(-9138181); car2.setBattery(3000); car2.setLat(38736320); car2.setLon(-9301917);
-		 * 
-		 * state.getUpdatecars().put(car1.getId(), car1); state.getUpdatecars().put(car2.getId(), car2);
-		 * 
-		 * IST.setPassengers(15); IST.setWaitingtime(15); TP.setPassengers(15); TP.setWaitingtime(15); AIRPORT.setPassengers(15); AIRPORT.setWaitingtime(15); state.getUpdatestations().put(IST.getId(), IST); state.getUpdatestations().put(AIRPORT.getId(), AIRPORT); state.getUpdatestations().put(TP.getId(), TP); */
-
+		
 		try {
 			server = new ServerSocket(6799);
 			
