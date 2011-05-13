@@ -1,5 +1,10 @@
 package SmartFleet.monitor;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +57,8 @@ public class SmartFleetMonitor extends MapActivity {
         
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
+        this.loadConfiguration();
+        
 		this.setContentView(R.layout.main);
     	this.mapView = (MapView) findViewById(R.id.mapview);
     	
@@ -292,6 +299,24 @@ public class SmartFleetMonitor extends MapActivity {
 		return serverport;
 	}
 	
+	public void loadConfiguration(){
+		
+		try {
+			 BufferedReader in = new BufferedReader(new FileReader("/mnt/sdcard/config.txt"));
+			 
+			 this.serverip = in.readLine();
+			 this.serverport = Integer.valueOf(in.readLine());
+			 
+			 Log.d("coisas", this.serverip);
+			 Log.d("cenas", "" + this.serverport);
+			 
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
 	
 	
 }
