@@ -141,8 +141,7 @@ private static SmartFleetCar MAIN_ACTIVITY;
 
 
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Log.d("SmartFleetCar", "Server is down...");
 					}
 				}
 			}			
