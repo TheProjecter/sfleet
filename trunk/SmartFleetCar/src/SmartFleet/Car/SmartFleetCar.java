@@ -370,6 +370,7 @@ public class SmartFleetCar extends MapActivity {
 			}else
 				this.setAtStation(false);
 			
+			
 			Log.d("CarUnSbuscribe", "Successfully unsubbed.");
 			
 		} catch (UnknownHostException e) {
