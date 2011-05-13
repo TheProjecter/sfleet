@@ -17,6 +17,7 @@ import messages.Station;
 import messages.StationList;
 import structs.Flight;
 import structs.RWCar;
+import structs.Route;
 import structs.ServerCar;
 import structs.ServerStation;
 
@@ -42,6 +43,52 @@ public class ServerWorker implements Runnable {
 			ServerCar serverCar = this.state.getCars().get(car.getId());
 			if (serverCar != null) {
 				if (serverCar.getClock() < car.getClock()) {
+					
+					//CALCULA ESTATISTICAS...
+					Route previous = serverCar.getRoute().clone();
+					Route now = car.getRoute().clone();
+					
+					double lat0 = serverCar.getLat();
+					double lon0 = serverCar.getLon();
+					
+					if(!previous.getRoute().isEmpty()){
+						
+						Flight fnow = null;
+						if(!now.getRoute().isEmpty())
+							fnow = now.getRoute().getFirst();
+						
+						for(Flight fprev = previous.getRoute().getFirst();;){
+							
+							if(	fnow != null &&
+								fprev.getLat() == fnow.getLat() &&
+								fprev.getLon() == fnow.getLon() &&
+								fprev.getPartyname().equals(fnow.getPartyname()) &&
+								fprev.getDestination().equals(fnow.getDestination()) &&
+								fprev.getNpassengers() == fnow.getNpassengers()){
+								break;
+							}
+							else{
+								this.state.setNpeople(this.state.getNpeople() + fprev.getNpassengers());
+								this.state.setNflights(this.state.getNflights() + 1);
+								double distance = this.distanceBetween(fprev.getLat(), fprev.getLon(), lat0, lon0);
+								lat0 = fprev.getLat();
+								lon0 = fprev.getLon();
+								this.state.setTotal_km(this.state.getTotal_km() + (distance/1000));
+								this.state.setTotal_time(this.state.getTotal_time() + (distance/serverCar.getVelocity()));
+								previous.getRoute().removeFirst();
+								if(previous.getRoute().isEmpty())
+									break;
+								fprev = previous.getRoute().getFirst();
+							}
+
+						}
+					}
+					
+					double battery_wasted = serverCar.getBattery() - car.getBattery();
+					if(battery_wasted < 0){
+						this.state.setTotal_battery(this.state.getTotal_battery() + battery_wasted);
+					}
+					
 					serverCar.setClock(car.getClock());
 					serverCar.setBattery(car.getBattery());
 					serverCar.setLat(car.getLat());
@@ -83,10 +130,30 @@ public class ServerWorker implements Runnable {
 		
 	}
 
+    public double sumStraightLine(){
+    	double distance = 0;
+    	for(ServerStation ss : this.state.getStations().values()){
+    		for(ServerCar sc : this.state.getCars().values()){
+    			for(Flight f : sc.getRoute().getRoute()){
+    				if(!f.getPartyname().equals("")){
+    					distance += this.distanceBetween(ss.getLat(), ss.getLon(), 
+    													 f.getLat(), f.getLon());
+    				}
+    			}
+    		}
+    	}
+    	return distance;
+    }
 	
 	private void doMonitorUpdate() {
 
-		Snapshot snapshot = new Snapshot(this.state.getStations(), this.state.getCars());
+		Snapshot snapshot = new Snapshot(this.state.getStations(), this.state.getCars(), this.state.getMissingcars());
+		snapshot.setNflights(this.state.getNflights());
+		snapshot.setTotal_battery(this.state.getTotal_battery());
+		snapshot.setTotal_km(this.state.getTotal_km());
+		snapshot.setTotal_people(this.state.getNpeople());
+		snapshot.setTotal_time(this.state.getTotal_time());
+		snapshot.setStraight_sum(this.sumStraightLine());
 		ObjectOutputStream o;
 		try {
 			o = new ObjectOutputStream(this.socket.getOutputStream());
