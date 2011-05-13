@@ -28,12 +28,8 @@ public class MissingVehicle implements Runnable {
 				for(ServerCar sc : state.getCars().values()){
 					if(!sc.getRoute().getRoute().isEmpty() && !state.getMissingcars().containsKey(sc.getId()) && !state.getCarsfound().containsKey(sc.getId())){
 						long time = Calendar.getInstance().getTimeInMillis();
-						System.out.println("Car: " + sc.getId());
-						System.out.println("Update time: " + sc.getTimeToUpdate());
-						System.out.println("Actual time: " + time);
 						if(time > sc.getTimeToUpdate()){
 							state.getMissingcars().put(sc.getId(), sc);
-							System.out.println("Car: " + sc.getId() + " is missing.");
 							int lat = sc.getRoute().getRoute().getLast().getLat();
 							int lon = sc.getRoute().getRoute().getLast().getLon();
 							for(ServerStation ss : state.getStations().values()){
