@@ -12,11 +12,11 @@ import java.util.TimerTask;
 
 import messages.Station;
 import messages.StationList;
-
 import structs.ServerStation;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 public class UpdateCentralServerService extends Service{
 
@@ -75,8 +75,7 @@ private static SmartFleetStation MAIN_ACTIVITY;
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Log.d("SmartFleetStation", "Server is down...");
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
