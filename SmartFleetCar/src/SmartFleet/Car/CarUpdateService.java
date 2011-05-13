@@ -33,24 +33,29 @@ public class CarUpdateService extends Service{
 				
 				this.height = this.sfc.getMyCar().getHeight();
 				
-				if (this.height == 0 && !this.sfc.isAtStation()){
+				if(this.height > 0){
 					if(!this.subbed){
 						this.sfc.subscribeRealWorld();
 						this.subbed = true;
-					}					
-				}
-				else if(this.height > 0){
-					if(!this.subbed){
-						this.sfc.subscribeRealWorld();
-						this.subbed = true;
+						this.sfc.setAtStation(true);
 					}
 					
 					this.sfc.updateRealWorld();
 					
-				}else if (this.height == 0 && this.subbed == true){
+				}
+				else if (this.subbed == true && this.sfc.isAtStation()){
 					this.sfc.unsubscribeRealWorld();
 					this.subbed = false;
-				}				
+				}
+				else if (!this.sfc.isAtStation()){
+					if(!this.subbed){
+						this.sfc.subscribeRealWorld();
+						this.subbed = true;
+					}			
+					
+					this.sfc.updateRealWorld();
+					
+				} 
 			}
 			
 		}, 0, 1000);
