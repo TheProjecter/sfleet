@@ -1,0 +1,24 @@
+##Central Server IP##
+194.210.228.199
+##Central Server Port##
+6799
+##Real World Server IP##
+194.210.228.199
+##Real World Server Port##
+6798
+##My IP##
+194.210.228.199
+##My Port##
+5000
+##My Latitude##
+38736830
+##My Longitude##
+-9138181
+##Velocity## (Default it's 10m/s)
+10
+
+
+//GeoPoint IST = new GeoPoint(38736830, -9138181);
+//GeoPoint TP = new GeoPoint(38736320, -9301917);
+//GeoPoint AirPort = new GeoPoint(38765775, -9133007);
+

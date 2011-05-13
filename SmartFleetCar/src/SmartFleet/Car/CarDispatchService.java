@@ -52,7 +52,6 @@ public class CarDispatchService extends Service{
 					}
 					
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -67,7 +66,6 @@ public class CarDispatchService extends Service{
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

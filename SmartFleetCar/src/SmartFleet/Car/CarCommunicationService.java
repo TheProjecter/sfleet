@@ -67,7 +67,6 @@ private static SmartFleetCar MAIN_ACTIVITY;
 							oo.writeObject(rwcar);
 							
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -99,7 +98,6 @@ private static SmartFleetCar MAIN_ACTIVITY;
 							oo.writeObject(rwcar);
 		
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -156,7 +154,6 @@ private static SmartFleetCar MAIN_ACTIVITY;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
