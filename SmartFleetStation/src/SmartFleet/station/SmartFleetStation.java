@@ -628,9 +628,6 @@ public class SmartFleetStation extends Activity {
 		Station mes = new Station(me.getLatitudeE6(), me.getLongitudeE6());
 		this.myStation.getStations().add(mes);
 		
-		Station aitrport = new Station(AirPort.getLatitudeE6(), AirPort.getLongitudeE6());
-		this.myStation.getStations().add(aitrport);
-		
 		this.setContentView(R.layout.main);
 		this.mHandler.post(this.mUpdateResults);
 		
