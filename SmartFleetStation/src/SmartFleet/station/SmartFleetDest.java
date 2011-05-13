@@ -16,6 +16,12 @@ public class SmartFleetDest extends MapActivity{
 	private MapController mapc;
 	private SelectionOverlay solay;
 	
+	private static SmartFleetStation sfs;
+	
+	public static void setMainActivity(SmartFleetStation activity) {
+		sfs = activity;
+	}
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -29,8 +35,9 @@ public class SmartFleetDest extends MapActivity{
     	mapView.setBuiltInZoomControls(true);
 		this.mapView.setSatellite(false);
 		this.mapc.setZoom(16);
-		this.mapc.setCenter(new GeoPoint(38736830, -9138181));
-		this.mapc.animateTo(new GeoPoint(38736830, -9138181));
+		GeoPoint me = sfs.getMylocation();
+		this.mapc.setCenter(new GeoPoint(me.getLatitudeE6(), me.getLongitudeE6()));
+		this.mapc.animateTo(new GeoPoint(me.getLatitudeE6(), me.getLongitudeE6()));
 		this.solay = new SelectionOverlay();
 		this.mapView.getOverlays().add(this.solay);
 	}

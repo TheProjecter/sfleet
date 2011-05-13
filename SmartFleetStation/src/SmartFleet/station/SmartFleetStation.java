@@ -604,6 +604,7 @@ public class SmartFleetStation extends Activity {
 	
 	public void loadSelectDestination(View V) {
 
+		SmartFleetDest.setMainActivity(this);
 		Intent myIntent = new Intent(this, SmartFleetDest.class);
 		startActivityForResult(myIntent, 0);
 	}
@@ -650,7 +651,6 @@ public class SmartFleetStation extends Activity {
 		this.registerOnRealWorld();
 		
 	}
-	
 
 	public void registerOnRealWorld() {
 

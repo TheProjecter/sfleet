@@ -85,8 +85,15 @@ public class ServerWorker implements Runnable {
 					}
 					
 					double battery_wasted = serverCar.getBattery() - car.getBattery();
-					if(battery_wasted < 0){
+					if(battery_wasted > 0){
 						this.state.setTotal_battery(this.state.getTotal_battery() + battery_wasted);
+					}
+					
+					if(!packet.getGossip().isEmpty()){
+						serverCar.getLatestcarseen().clear();
+						for(RWCar rc : packet.getGossip()){
+							serverCar.getLatestcarseen().add(rc.getId());
+						}
 					}
 					
 					serverCar.setClock(car.getClock());
